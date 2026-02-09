@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Restore Finance Data</title>
+</head>
+<body>
+    <h1>Restoring your data...</h1>
+    <script>
+        const backupData = {"financialYear":"2025-26","includeMedicare":true,"andyIncome":{"baseSalary":90000,"variableIncome":10000,"allowances":5000,"preTotalAdjustments":0},"nadieleIncome":{"baseSalary":75000,"variableIncome":5000,"allowances":0,"preTotalAdjustments":0},"andyVoluntarySuper":2,"nadieleVoluntarySuper":2,"expenses":[{"id":"2","name":"Groceries","category":"Food","amount":300,"frequency":"weekly","andyProportion":50,"nadieleProportion":50},{"id":"3","name":"Utilities","category":"Bills","amount":400,"frequency":"monthly","andyProportion":55,"nadieleProportion":45},{"id":"mortgage-auto","name":"Mortgage Payment","category":"Housing","amount":3160.3401174648266,"frequency":"monthly","andyProportion":50,"nadieleProportion":50}],"andyCurrentAge":35,"nadieleCurrentAge":33,"andyRetirementAge":67,"nadieleRetirementAge":67,"annualIncomeIncrease":3,"annualInflationRate":2.5,"assets":{"andySuperBalance":150000,"nadieleSuperBalance":120000,"superGrowthRate":7,"portfolioValue":50000,"portfolioGrowthRate":7,"cars":[{"id":"1","name":"Car 1","currentValue":25000,"annualDepreciation":15}],"otherAssets":[],"mortgage":{"loanAmount":500000,"interestRate":6.5,"loanTermYears":30,"paymentsPerYear":12,"startYear":2020,"extraMonthlyPayment":0},"retirementSpendingRatio":70},"children":[{"id":"1","name":"Tristan","currentYearLevel":1,"currentYear":2026}],"educationFees":{"elp3":6990,"elp4":10500,"prepToYear4":11500,"year5And6":15990,"year7To9":21990,"year10To12":27990,"baseYear":2026}};
+
+        localStorage.setItem('financeAppData', JSON.stringify(backupData));
+
+        document.body.innerHTML = '<h1 style="color: green;">✓ Data Restored!</h1><p>Your finance data has been restored. <a href="http://localhost:3000/dashboard">Go to Dashboard</a></p>';
+    </script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Color Palette from Colour.png */
+  --charcoal: #6B6B6B;
+  --charcoal-dark: #5F5F5F;
+  --tan: #E8C48C;
+  --cream: #F5F5F0;
+  --gray-light: #C5C5C0;
+
+  --background: #F5F5F0;
+  --foreground: #3a3a3a;
+  --card: #ffffff;
+  --card-border: #e0ddd8;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .bg-charcoal {
+    background-color: var(--charcoal);
+  }
+
+  .bg-charcoal-dark {
+    background-color: var(--charcoal-dark);
+  }
+
+  .bg-tan {
+    background-color: var(--tan);
+  }
+
+  .bg-cream {
+    background-color: var(--cream);
+  }
+
+  .text-charcoal {
+    color: var(--charcoal);
+  }
+
+  .text-tan {
+    color: var(--tan);
+  }
+
+  .border-tan {
+    border-color: var(--tan);
+  }
+
+  .border-gray-custom {
+    border-color: var(--gray-light);
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--cream);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--charcoal);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--charcoal-dark);
+}
