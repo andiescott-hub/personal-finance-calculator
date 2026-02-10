@@ -25,7 +25,13 @@ export default function AssetsPage() {
   const [newPortfolioItem, setNewPortfolioItem] = useState<Partial<PortfolioItem>>({
     name: '',
     currentValue: 0,
+    isManual: false,
+    ticker: '',
+    quantity: 0,
   });
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastRefreshTime, setLastRefreshTime] = useState<string | null>(null);
+  const [refreshErrors, setRefreshErrors] = useState<Record<string, string>>({});
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-AU', {
@@ -118,22 +124,94 @@ export default function AssetsPage() {
     });
   };
 
+  const formatPrice = (value: number) => {
+    return new Intl.NumberFormat('en-AU', {
+      style: 'currency',
+      currency: 'AUD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(value);
+  };
+
   // Portfolio item functions
-  const addPortfolioItem = () => {
-    if (!newPortfolioItem.name || !newPortfolioItem.currentValue) {
-      alert('Please fill in name and value');
-      return;
+  const fetchStockPrice = async (ticker: string): Promise<{ priceAUD: number; error?: string }> => {
+    try {
+      const res = await fetch(`/api/stock-price?ticker=${encodeURIComponent(ticker)}`);
+      if (!res.ok) {
+        const data = await res.json();
+        return { priceAUD: 0, error: data.error || 'Failed to fetch price' };
+      }
+      const data = await res.json();
+      return { priceAUD: data.priceAUD };
+    } catch {
+      return { priceAUD: 0, error: 'Network error fetching price' };
     }
-    const item: PortfolioItem = {
-      id: Date.now().toString(),
-      name: newPortfolioItem.name,
-      currentValue: newPortfolioItem.currentValue,
-    };
-    setAssets({
-      ...assets,
-      portfolioItems: [...(assets.portfolioItems || []), item],
-    });
-    setNewPortfolioItem({ name: '', currentValue: 0 });
+  };
+
+  const refreshAllPrices = async () => {
+    setIsRefreshing(true);
+    setRefreshErrors({});
+    const items = assets.portfolioItems || [];
+    const liveItems = items.filter(item => !item.isManual && item.ticker);
+    if (liveItems.length === 0) { setIsRefreshing(false); return; }
+
+    const errors: Record<string, string> = {};
+    const updatedItems = [...items];
+
+    for (const liveItem of liveItems) {
+      const result = await fetchStockPrice(liveItem.ticker!);
+      if (result.error) {
+        errors[liveItem.id] = result.error;
+      } else {
+        const idx = updatedItems.findIndex(i => i.id === liveItem.id);
+        if (idx >= 0) {
+          const qty = updatedItems[idx].quantity || 0;
+          updatedItems[idx] = {
+            ...updatedItems[idx],
+            pricePerUnit: result.priceAUD,
+            currentValue: Math.round(qty * result.priceAUD * 100) / 100,
+            lastPriceUpdate: new Date().toISOString(),
+          };
+        }
+      }
+    }
+
+    setAssets({ ...assets, portfolioItems: updatedItems });
+    setRefreshErrors(errors);
+    setLastRefreshTime(new Date().toLocaleTimeString());
+    setIsRefreshing(false);
+  };
+
+  const addPortfolioItem = () => {
+    if (newPortfolioItem.isManual) {
+      if (!newPortfolioItem.name || !newPortfolioItem.currentValue) {
+        alert('Please fill in name and value');
+        return;
+      }
+      const item: PortfolioItem = {
+        id: Date.now().toString(),
+        name: newPortfolioItem.name,
+        currentValue: newPortfolioItem.currentValue,
+        isManual: true,
+      };
+      setAssets({ ...assets, portfolioItems: [...(assets.portfolioItems || []), item] });
+    } else {
+      if (!newPortfolioItem.ticker || !newPortfolioItem.quantity) {
+        alert('Please fill in ticker and quantity');
+        return;
+      }
+      const item: PortfolioItem = {
+        id: Date.now().toString(),
+        name: newPortfolioItem.ticker.toUpperCase(),
+        ticker: newPortfolioItem.ticker.toUpperCase(),
+        quantity: newPortfolioItem.quantity,
+        pricePerUnit: 0,
+        currentValue: 0,
+        isManual: false,
+      };
+      setAssets({ ...assets, portfolioItems: [...(assets.portfolioItems || []), item] });
+    }
+    setNewPortfolioItem({ name: '', currentValue: 0, isManual: newPortfolioItem.isManual, ticker: '', quantity: 0 });
   };
 
   const deletePortfolioItem = (id: string, name: string) => {
@@ -148,9 +226,14 @@ export default function AssetsPage() {
   const updatePortfolioItem = (id: string, updates: Partial<PortfolioItem>) => {
     setAssets({
       ...assets,
-      portfolioItems: (assets.portfolioItems || []).map((i) =>
-        i.id === id ? { ...i, ...updates } : i
-      ),
+      portfolioItems: (assets.portfolioItems || []).map((i) => {
+        if (i.id !== id) return i;
+        const updated = { ...i, ...updates };
+        if (!updated.isManual && updated.quantity != null && updated.pricePerUnit != null) {
+          updated.currentValue = Math.round(updated.quantity * updated.pricePerUnit * 100) / 100;
+        }
+        return updated;
+      }),
     });
   };
 
@@ -302,46 +385,129 @@ export default function AssetsPage() {
         {/* Add Portfolio Item */}
         <div className="mb-4 p-4 bg-gray-50 rounded">
           <h3 className="font-medium mb-3">Add Investment</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">Name</label>
+          <div className="mb-3">
+            <label className="flex items-center gap-2 text-sm">
               <input
-                type="text"
-                value={newPortfolioItem.name}
-                onChange={(e) => setNewPortfolioItem({ ...newPortfolioItem, name: e.target.value })}
-                className="w-full border rounded p-2"
-                placeholder="e.g., VAS ETF"
+                type="checkbox"
+                checked={newPortfolioItem.isManual || false}
+                onChange={(e) => setNewPortfolioItem({ ...newPortfolioItem, isManual: e.target.checked })}
+                className="rounded"
               />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Current Value</label>
-              <CurrencyInput
-                value={newPortfolioItem.currentValue || 0}
-                onChange={(val) => setNewPortfolioItem({ ...newPortfolioItem, currentValue: val })}
-                className="w-full border rounded p-2"
-              />
-            </div>
-            <div className="flex items-end">
-              <button
-                onClick={addPortfolioItem}
-                className="w-full bg-tan text-white px-6 py-2 rounded hover:bg-charcoal"
-              >
-                Add Investment
-              </button>
-            </div>
+              Manual entry (no live price lookup)
+            </label>
           </div>
+          {newPortfolioItem.isManual ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Name</label>
+                <input
+                  type="text"
+                  value={newPortfolioItem.name}
+                  onChange={(e) => setNewPortfolioItem({ ...newPortfolioItem, name: e.target.value })}
+                  className="w-full border rounded p-2"
+                  placeholder="e.g., Expected Inheritance"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Value (AUD)</label>
+                <CurrencyInput
+                  value={newPortfolioItem.currentValue || 0}
+                  onChange={(val) => setNewPortfolioItem({ ...newPortfolioItem, currentValue: val })}
+                  className="w-full border rounded p-2"
+                />
+              </div>
+              <div className="flex items-end">
+                <button onClick={addPortfolioItem} className="w-full bg-tan text-white px-6 py-2 rounded hover:bg-charcoal">
+                  Add Investment
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Ticker</label>
+                <input
+                  type="text"
+                  value={newPortfolioItem.ticker || ''}
+                  onChange={(e) => setNewPortfolioItem({ ...newPortfolioItem, ticker: e.target.value.toUpperCase() })}
+                  className="w-full border rounded p-2 uppercase"
+                  placeholder="e.g., BHP.AX, VAS.AX, AAPL"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Quantity</label>
+                <input
+                  type="number"
+                  value={newPortfolioItem.quantity || ''}
+                  onChange={(e) => setNewPortfolioItem({ ...newPortfolioItem, quantity: Number(e.target.value) })}
+                  className="w-full border rounded p-2"
+                  placeholder="Number of shares"
+                  min={0}
+                  step={1}
+                />
+              </div>
+              <div className="flex items-end">
+                <button onClick={addPortfolioItem} className="w-full bg-tan text-white px-6 py-2 rounded hover:bg-charcoal">
+                  Add Investment
+                </button>
+              </div>
+            </div>
+          )}
         </div>
+
+        {/* Refresh Prices Button */}
+        {(assets.portfolioItems || []).some(item => !item.isManual && item.ticker) && (
+          <div className="mb-4 flex flex-wrap items-center gap-4">
+            <button
+              onClick={refreshAllPrices}
+              disabled={isRefreshing}
+              className={`px-4 py-2 rounded text-white ${
+                isRefreshing ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'
+              }`}
+            >
+              {isRefreshing ? 'Refreshing...' : 'Refresh Prices'}
+            </button>
+            {lastRefreshTime && (
+              <span className="text-sm text-gray-500">Last refreshed: {lastRefreshTime}</span>
+            )}
+            {Object.keys(refreshErrors).length > 0 && (
+              <span className="text-sm text-red-500">
+                {Object.keys(refreshErrors).length} ticker(s) failed
+              </span>
+            )}
+          </div>
+        )}
 
         {/* Portfolio Items List */}
         {(assets.portfolioItems || []).length > 0 && (
           <>
+          {/* Mobile cards */}
           <div className="md:hidden space-y-3">
             {(assets.portfolioItems || []).map((item) => (
               <div key={item.id} className="border rounded-lg p-3">
                 <div className="flex justify-between items-start mb-2">
-                  <p className="font-medium">{item.name}</p>
+                  <div>
+                    <label className="flex items-center gap-1 text-xs text-gray-500 mb-1">
+                      <input
+                        type="checkbox"
+                        checked={item.isManual}
+                        onChange={(e) => updatePortfolioItem(item.id, { isManual: e.target.checked })}
+                        className="rounded"
+                      />
+                      Manual
+                    </label>
+                    <p className="font-medium">{item.isManual ? item.name : (item.ticker || item.name)}</p>
+                    {!item.isManual && item.quantity != null && (
+                      <p className="text-xs text-gray-500">
+                        {item.quantity} units @ {item.pricePerUnit ? formatPrice(item.pricePerUnit) : '--'}
+                      </p>
+                    )}
+                  </div>
                   <p className="font-semibold">{formatCurrency(item.currentValue)}</p>
                 </div>
+                {refreshErrors[item.id] && (
+                  <p className="text-xs text-red-500 mb-1">{refreshErrors[item.id]}</p>
+                )}
                 <div className="text-right">
                   <button
                     onClick={() => deletePortfolioItem(item.id, item.name)}
@@ -353,32 +519,95 @@ export default function AssetsPage() {
               </div>
             ))}
           </div>
+          {/* Desktop table */}
           <div className="hidden md:block overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-charcoal text-white">
-                  <th className="border p-3 text-left">Name</th>
-                  <th className="border p-3 text-right">Current Value</th>
+                  <th className="border p-3 text-center w-16">Manual</th>
+                  <th className="border p-3 text-left">Name / Ticker</th>
+                  <th className="border p-3 text-right">QTY</th>
+                  <th className="border p-3 text-right">Price P/Unit</th>
+                  <th className="border p-3 text-right">Value (AUD)</th>
                   <th className="border p-3 text-center">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {(assets.portfolioItems || []).map((item) => (
                   <tr key={item.id} className="hover:bg-gray-50">
-                    <td className="border p-3">
+                    <td className="border p-3 text-center">
                       <input
-                        type="text"
-                        value={item.name}
-                        onChange={(e) => updatePortfolioItem(item.id, { name: e.target.value })}
-                        className="border-0 focus:border-blue-500 rounded p-1 min-w-[120px]"
+                        type="checkbox"
+                        checked={item.isManual}
+                        onChange={(e) => updatePortfolioItem(item.id, {
+                          isManual: e.target.checked,
+                          ...(e.target.checked ? {} : { ticker: item.ticker || item.name, quantity: item.quantity || 0 }),
+                        })}
+                        className="rounded"
                       />
                     </td>
+                    <td className="border p-3">
+                      {item.isManual ? (
+                        <input
+                          type="text"
+                          value={item.name}
+                          onChange={(e) => updatePortfolioItem(item.id, { name: e.target.value })}
+                          className="border-0 focus:border-blue-500 rounded p-1 min-w-[120px]"
+                          placeholder="Description"
+                        />
+                      ) : (
+                        <div>
+                          <input
+                            type="text"
+                            value={item.ticker || ''}
+                            onChange={(e) => updatePortfolioItem(item.id, {
+                              ticker: e.target.value.toUpperCase(),
+                              name: e.target.value.toUpperCase(),
+                            })}
+                            className="border-0 focus:border-blue-500 rounded p-1 min-w-[120px] uppercase"
+                            placeholder="e.g., BHP.AX"
+                          />
+                          {refreshErrors[item.id] && (
+                            <p className="text-xs text-red-500 mt-1">{refreshErrors[item.id]}</p>
+                          )}
+                        </div>
+                      )}
+                    </td>
                     <td className="border p-3 text-right">
-                      <CurrencyInput
-                        value={item.currentValue}
-                        onChange={(val) => updatePortfolioItem(item.id, { currentValue: val })}
-                        className="text-right border-0 focus:border-blue-500 rounded p-1 w-28"
-                      />
+                      {item.isManual ? (
+                        <span className="text-gray-400">--</span>
+                      ) : (
+                        <input
+                          type="number"
+                          value={item.quantity || ''}
+                          onChange={(e) => updatePortfolioItem(item.id, { quantity: Number(e.target.value) })}
+                          className="text-right border-0 focus:border-blue-500 rounded p-1 w-20"
+                          min={0}
+                          step={1}
+                        />
+                      )}
+                    </td>
+                    <td className="border p-3 text-right">
+                      {item.isManual ? (
+                        <span className="text-gray-400">--</span>
+                      ) : (
+                        <span className="text-gray-700">
+                          {item.pricePerUnit ? formatPrice(item.pricePerUnit) : '--'}
+                        </span>
+                      )}
+                    </td>
+                    <td className="border p-3 text-right">
+                      {item.isManual ? (
+                        <CurrencyInput
+                          value={item.currentValue}
+                          onChange={(val) => updatePortfolioItem(item.id, { currentValue: val })}
+                          className="text-right border-0 focus:border-blue-500 rounded p-1 w-28"
+                        />
+                      ) : (
+                        <span className="font-medium">
+                          {item.currentValue ? formatCurrency(item.currentValue) : '--'}
+                        </span>
+                      )}
                     </td>
                     <td className="border p-3 text-center">
                       <button

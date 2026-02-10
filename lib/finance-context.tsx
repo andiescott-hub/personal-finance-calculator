@@ -23,7 +23,12 @@ export interface Asset {
 export interface PortfolioItem {
   id: string;
   name: string;
+  ticker?: string;
+  quantity?: number;
+  pricePerUnit?: number;
   currentValue: number;
+  isManual: boolean;
+  lastPriceUpdate?: string;
 }
 
 export interface Mortgage {
@@ -163,7 +168,7 @@ const defaultAssets: Assets = {
   portfolioValue: 50000,
   portfolioGrowthRate: 7,
   portfolioItems: [
-    { id: '1', name: 'General Portfolio', currentValue: 50000 },
+    { id: '1', name: 'General Portfolio', currentValue: 50000, isManual: true },
   ],
   cars: [
     {
@@ -264,7 +269,7 @@ export function FinanceProvider({ children: reactChildren }: { children: ReactNo
         ...defaultAssets,
         ...(a as unknown as Assets),
         otherAssets: (a.otherAssets as Asset[]) || [],
-        portfolioItems: (a.portfolioItems as PortfolioItem[]) || [{ id: '1', name: 'General Portfolio', currentValue: (a.portfolioValue as number) || 50000 }],
+        portfolioItems: ((a.portfolioItems as PortfolioItem[]) || [{ id: '1', name: 'General Portfolio', currentValue: (a.portfolioValue as number) || 50000, isManual: true }]).map(item => ({ ...item, isManual: item.isManual ?? true })),
         mortgage: (a.mortgage as Mortgage) || defaultAssets.mortgage,
         retirementSpendingRatio: (a.retirementSpendingRatio as number) ?? defaultAssets.retirementSpendingRatio,
       });

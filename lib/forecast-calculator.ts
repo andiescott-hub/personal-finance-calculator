@@ -327,11 +327,10 @@ export function calculateForecast(config: ForecastConfig): ForecastResult {
 
     const combinedExpenses = andyExpenses + nadieleExpenses + educationExpenses;
 
-    // Portfolio contributions (only during working years, grow with inflation)
+    // Portfolio contributions (only during working years, grow with income)
     const bothRetired = andyIsRetired && nadieleIsRetired;
-    const portfolioInflationFactor = Math.pow(1 + config.annualInflationRate / 100, yearCount);
-    const andyPortfolioContrib = andyIsRetired ? 0 : (config.andyPortfolioContribution || 0) * portfolioInflationFactor;
-    const nadielePortfolioContrib = nadieleIsRetired ? 0 : (config.nadielePortfolioContribution || 0) * portfolioInflationFactor;
+    const andyPortfolioContrib = andyIsRetired ? 0 : (config.andyPortfolioContribution || 0) * incomeGrowthFactor;
+    const nadielePortfolioContrib = nadieleIsRetired ? 0 : (config.nadielePortfolioContribution || 0) * incomeGrowthFactor;
     const combinedPortfolioContrib = andyPortfolioContrib + nadielePortfolioContrib;
 
     // Non-spendable income (allowances + preTotalAdjustments are not available for spending)
