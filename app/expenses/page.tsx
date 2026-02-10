@@ -1,13 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   calculateExpenseSummary,
   type ExpenseItem,
   type ExpenseFrequency,
 } from '@/lib/expense-calculator';
+import { calculateHouseholdIncome, type CalculationConfig } from '@/lib/income-calculator';
 import { useFinance } from '@/lib/finance-context';
-import { CurrencyInput, PercentInput } from '@/components/formatted-input';
+import { CurrencyInput } from '@/components/formatted-input';
 
 export default function ExpensesPage() {
   const {
@@ -17,7 +18,52 @@ export default function ExpensesPage() {
     setAndyPortfolioContribution,
     nadielePortfolioContribution,
     setNadielePortfolioContribution,
+    andyIncome,
+    nadieleIncome,
+    financialYear,
+    includeMedicare,
+    andyVoluntarySuper,
+    nadieleVoluntarySuper,
   } = useFinance();
+
+  // Calculate spendable income to derive expense ratio
+  const incomeConfig: CalculationConfig = useMemo(() => ({
+    includeMedicareLevy: includeMedicare,
+    financialYear,
+    voluntarySuperRate: {
+      andy: andyVoluntarySuper / 100,
+      nadiele: nadieleVoluntarySuper / 100,
+    },
+    spendableExclusions: {
+      andy: andyIncome.allowances + andyIncome.preTotalAdjustments,
+      nadiele: nadieleIncome.allowances + nadieleIncome.preTotalAdjustments,
+    },
+  }), [includeMedicare, financialYear, andyVoluntarySuper, nadieleVoluntarySuper, andyIncome, nadieleIncome]);
+
+  const incomeData = useMemo(
+    () => calculateHouseholdIncome(andyIncome, nadieleIncome, incomeConfig),
+    [andyIncome, nadieleIncome, incomeConfig]
+  );
+
+  const andySpendable = incomeData.andy.spendableIncome;
+  const nadieleSpendable = incomeData.nadiele.spendableIncome;
+  const totalSpendable = andySpendable + nadieleSpendable;
+  const andyPercent = totalSpendable > 0 ? Math.round(andySpendable / totalSpendable * 100) : 50;
+  const nadielePercent = 100 - andyPercent;
+
+  // Auto-update all expense proportions when income ratio changes
+  useEffect(() => {
+    const needsUpdate = expenses.some(
+      exp => exp.andyProportion !== andyPercent || exp.nadieleProportion !== nadielePercent
+    );
+    if (needsUpdate) {
+      setExpenses(expenses.map(exp => ({
+        ...exp,
+        andyProportion: andyPercent,
+        nadieleProportion: nadielePercent,
+      })));
+    }
+  }, [andyPercent, nadielePercent]);
 
   const [newExpense, setNewExpense] = useState<Partial<ExpenseItem>>({
     name: '',
@@ -196,6 +242,16 @@ export default function ExpensesPage() {
         </div>
       </div>
 
+      {/* Income-Based Ratio Banner */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <p className="text-sm font-semibold text-blue-900 mb-1">
+          Expense split based on spendable income: Andy {andyPercent}% / Nadiele {nadielePercent}%
+        </p>
+        <p className="text-xs text-blue-700">
+          Andy spendable: {formatCurrency(andySpendable)}/yr | Nadiele spendable: {formatCurrency(nadieleSpendable)}/yr
+        </p>
+      </div>
+
       {/* Expenses List */}
       <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6 mb-6">
         <h2 className="text-lg md:text-xl font-semibold mb-4">Current Expenses</h2>
@@ -240,8 +296,6 @@ export default function ExpensesPage() {
                   Amount {sortBy === 'amount' && (sortDirection === 'asc' ? '↑' : '↓')}
                 </th>
                 <th className="border p-3 text-center">Frequency</th>
-                <th className="border p-3 text-right">Andy %</th>
-                <th className="border p-3 text-right">Nadiele %</th>
                 <th className="border p-3 text-right">Andy Share</th>
                 <th className="border p-3 text-right">Nadiele Share</th>
                 <th className="border p-3 text-center">Actions</th>
@@ -303,38 +357,6 @@ export default function ExpensesPage() {
                       <option value="monthly">Monthly</option>
                       <option value="annual">Annual</option>
                     </select>
-                  </td>
-                  <td className="border p-3 text-right">
-                    <PercentInput
-                      value={exp.andyPercentage}
-                      onChange={(val) => {
-                        // Update Andy proportion and auto-adjust Nadiele
-                        updateExpense(exp.id, {
-                          andyProportion: val,
-                          nadieleProportion: 100 - val,
-                        });
-                      }}
-                      className="text-right border-0 focus:border-blue-500 rounded p-1 w-16"
-                      min={0}
-                      max={100}
-                      step={1}
-                    />
-                  </td>
-                  <td className="border p-3 text-right">
-                    <PercentInput
-                      value={exp.nadielePercentage}
-                      onChange={(val) => {
-                        // Update Nadiele proportion and auto-adjust Andy
-                        updateExpense(exp.id, {
-                          nadieleProportion: val,
-                          andyProportion: 100 - val,
-                        });
-                      }}
-                      className="text-right border-0 focus:border-blue-500 rounded p-1 w-16"
-                      min={0}
-                      max={100}
-                      step={1}
-                    />
                   </td>
                   <td className="border p-3 text-right font-medium">
                     {formatCurrency(exp.andyShare)}
@@ -412,22 +434,6 @@ export default function ExpensesPage() {
               <option value="monthly">Monthly</option>
               <option value="annual">Annual</option>
             </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">Andy</label>
-            <PercentInput
-              value={newExpense.andyProportion || 50}
-              onChange={(val) => setNewExpense({ ...newExpense, andyProportion: val })}
-              className="border rounded p-2"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">Nadiele</label>
-            <PercentInput
-              value={newExpense.nadieleProportion || 50}
-              onChange={(val) => setNewExpense({ ...newExpense, nadieleProportion: val })}
-              className="border rounded p-2"
-            />
           </div>
         </div>
         <button
