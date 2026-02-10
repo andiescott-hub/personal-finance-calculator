@@ -110,7 +110,7 @@ export default function DashboardPage() {
   const assetTotal = assetBreakdown.reduce((sum, item) => sum + item.value, 0);
 
   return (
-    <div className="container mx-auto p-6 max-w-7xl">
+    <div className="container mx-auto px-2 md:px-6 max-w-7xl">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Financial Dashboard</h1>
@@ -118,18 +118,18 @@ export default function DashboardPage() {
       </div>
 
       {/* Current Net Worth - Large Hero Card */}
-      <div className="bg-white border-4 border-tan rounded-lg shadow-xl p-8 mb-6">
+      <div className="bg-white border-4 border-tan rounded-lg shadow-xl p-4 md:p-8 mb-6">
         <div className="text-center">
           <h2 className="text-sm font-medium mb-3 text-gray-600 uppercase tracking-wider">Current Net Worth</h2>
-          <div className="text-6xl font-bold mb-6 text-charcoal">{formatCurrency(currentNetWorth)}</div>
+          <div className="text-3xl md:text-6xl font-bold mb-6 text-charcoal">{formatCurrency(currentNetWorth)}</div>
           <div className="grid grid-cols-2 gap-8 max-w-2xl mx-auto mt-6 pt-6 border-t-2 border-gray-200">
             <div>
               <p className="text-gray-500 text-xs mb-2 uppercase tracking-wide">Total Assets</p>
-              <p className="text-3xl font-bold text-green-600">{formatCurrency(totalAssets)}</p>
+              <p className="text-xl md:text-3xl font-bold text-green-600">{formatCurrency(totalAssets)}</p>
             </div>
             <div>
               <p className="text-gray-500 text-xs mb-2 uppercase tracking-wide">Total Debt</p>
-              <p className="text-3xl font-bold text-red-600">{formatCurrency(mortgageBalance)}</p>
+              <p className="text-xl md:text-3xl font-bold text-red-600">{formatCurrency(mortgageBalance)}</p>
             </div>
           </div>
         </div>
@@ -197,7 +197,7 @@ export default function DashboardPage() {
         <div className="bg-white border border-gray-custom rounded-lg shadow p-6">
           <h2 className="text-xl font-semibold mb-4">Asset Allocation</h2>
           <div className="flex items-center justify-center">
-            <div className="relative w-96 h-96">
+            <div className="relative w-64 h-64 md:w-96 md:h-96">
               <svg viewBox="0 0 100 100" className="transform -rotate-90">
                 {/* White background circle for center text */}
                 <circle
@@ -241,7 +241,7 @@ export default function DashboardPage() {
               </svg>
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center px-4">
-                  <div className="text-4xl font-extrabold text-black">{formatCurrency(assetTotal)}</div>
+                  <div className="text-xl md:text-4xl font-extrabold text-black">{formatCurrency(assetTotal)}</div>
                   <div className="text-base text-black mt-1 font-bold">Total Assets</div>
                 </div>
               </div>

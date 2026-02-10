@@ -130,7 +130,7 @@ export default function CashFlowPage() {
   const data = getData();
 
   return (
-    <div className="container mx-auto p-6 max-w-7xl">
+    <div className="container mx-auto px-2 md:px-6 max-w-7xl">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Cash Flow & Disposable Income</h1>
@@ -141,10 +141,10 @@ export default function CashFlowPage() {
 
       {/* View Mode Toggle */}
       <div className="bg-white border border-gray-custom rounded-lg shadow p-6 mb-6">
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-2 md:gap-4">
           <button
             onClick={() => setViewMode('fortnightly')}
-            className={`px-6 py-2 rounded font-medium ${
+            className={`px-4 md:px-6 py-2 rounded font-medium text-sm md:text-base ${
               viewMode === 'fortnightly'
                 ? 'bg-tan text-white'
                 : 'bg-gray-light text-gray-700 hover:bg-charcoal hover:text-white'
@@ -154,7 +154,7 @@ export default function CashFlowPage() {
           </button>
           <button
             onClick={() => setViewMode('monthly')}
-            className={`px-6 py-2 rounded font-medium ${
+            className={`px-4 md:px-6 py-2 rounded font-medium text-sm md:text-base ${
               viewMode === 'monthly'
                 ? 'bg-tan text-white'
                 : 'bg-gray-light text-gray-700 hover:bg-charcoal hover:text-white'
@@ -164,7 +164,7 @@ export default function CashFlowPage() {
           </button>
           <button
             onClick={() => setViewMode('annual')}
-            className={`px-6 py-2 rounded font-medium ${
+            className={`px-4 md:px-6 py-2 rounded font-medium text-sm md:text-base ${
               viewMode === 'annual'
                 ? 'bg-tan text-white'
                 : 'bg-gray-light text-gray-700 hover:bg-charcoal hover:text-white'

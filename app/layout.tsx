@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { FinanceProvider } from "@/lib/finance-context";
 import { Sidebar } from "@/components/sidebar";
@@ -6,6 +6,11 @@ import { Sidebar } from "@/components/sidebar";
 export const metadata: Metadata = {
   title: "Personal Finance App - Australian Household Finance Calculator",
   description: "ATO-accurate income tax, superannuation, and expense distribution calculator for Australian households",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
@@ -22,8 +27,8 @@ export default function RootLayout({
             <Sidebar />
 
             {/* Main Content Area */}
-            <div className="flex-1 ml-64">
-              <main className="min-h-screen p-8">
+            <div className="flex-1 ml-0 md:ml-64">
+              <main className="min-h-screen pt-14 md:pt-0 p-4 md:p-8">
                 {children}
               </main>
               <footer className="bg-charcoal-dark text-white py-4 text-center text-sm">

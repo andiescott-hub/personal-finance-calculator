@@ -59,10 +59,10 @@ export default function HomePage() {
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-7xl">
+    <div className="container mx-auto px-2 md:px-6 max-w-7xl">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Income & Tax Calculator</h1>
+        <h1 className="text-2xl md:text-3xl font-bold mb-2">Income & Tax Calculator</h1>
         <p className="text-gray-600">
           ATO-accurate calculations for FY {financialYear}
         </p>

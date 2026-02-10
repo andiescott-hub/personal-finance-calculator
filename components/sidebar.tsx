@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -81,49 +82,84 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-64 bg-charcoal text-white shadow-xl flex flex-col">
-      {/* Header */}
-      <div className="p-6 border-b border-gray-700">
-        <h1 className="text-2xl font-bold">
+    <>
+      {/* Mobile Header Bar */}
+      <div className="fixed top-0 left-0 right-0 h-14 bg-charcoal text-white flex items-center px-4 z-30 md:hidden">
+        <button
+          onClick={() => setIsOpen(true)}
+          className="p-2 -ml-2 hover:bg-white/10 rounded"
+          aria-label="Open menu"
+        >
+          <div className="w-5 h-0.5 bg-white mb-1" />
+          <div className="w-5 h-0.5 bg-white mb-1" />
+          <div className="w-5 h-0.5 bg-white" />
+        </button>
+        <h1 className="ml-3 text-lg font-bold">
           Personal <span className="text-tan">Finance</span>
         </h1>
-        <p className="text-xs text-gray-400 mt-1">ATO-Accurate FY 2025-26</p>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 py-6">
-        {navItems.map((item) => {
-          // For root path, match exactly. For others, check if pathname starts with href
-          const isActive = item.href === '/'
-            ? pathname === '/'
-            : pathname.startsWith(item.href);
+      {/* Backdrop */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
 
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`
-                flex items-center gap-3 px-6 py-3 transition-all duration-200 text-sm font-medium
-                ${isActive
-                  ? 'bg-tan/20 text-tan border-l-2 border-tan'
-                  : 'text-gray-300 hover:bg-charcoal-dark hover:text-white'
-                }
-              `}
-            >
-              {item.icon}
-              <span>{item.label}</span>
-            </Link>
-          );
-        })}
-      </nav>
+      {/* Sidebar */}
+      <aside
+        className={`
+          fixed left-0 top-0 h-screen w-64 bg-charcoal text-white shadow-xl flex flex-col z-50
+          transition-transform duration-300 ease-in-out
+          ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+          md:translate-x-0
+        `}
+      >
+        {/* Header */}
+        <div className="p-6 border-b border-gray-700">
+          <h1 className="text-2xl font-bold">
+            Personal <span className="text-tan">Finance</span>
+          </h1>
+          <p className="text-xs text-gray-400 mt-1">ATO-Accurate FY 2025-26</p>
+        </div>
 
-      {/* Footer */}
-      <div className="p-6 border-t border-gray-700 text-xs text-gray-400">
-        <p>Australian Household</p>
-        <p>Finance Calculator</p>
-      </div>
-    </aside>
+        {/* Navigation */}
+        <nav className="flex-1 py-6 overflow-y-auto">
+          {navItems.map((item) => {
+            const isActive = item.href === '/'
+              ? pathname === '/'
+              : pathname.startsWith(item.href);
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setIsOpen(false)}
+                className={`
+                  flex items-center gap-3 px-6 py-3 transition-all duration-200 text-sm font-medium
+                  ${isActive
+                    ? 'bg-tan/20 text-tan border-l-2 border-tan'
+                    : 'text-gray-300 hover:bg-charcoal-dark hover:text-white'
+                  }
+                `}
+              >
+                {item.icon}
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Footer */}
+        <div className="p-6 border-t border-gray-700 text-xs text-gray-400">
+          <p>Australian Household</p>
+          <p>Finance Calculator</p>
+        </div>
+      </aside>
+    </>
   );
 }
