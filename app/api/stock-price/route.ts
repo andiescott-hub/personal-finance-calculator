@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import yahooFinance from 'yahoo-finance2';
+import YahooFinance from 'yahoo-finance2';
+
+const yf = new YahooFinance({ suppressNotices: ['yahooSurvey'] });
 
 // Simple in-memory cache
 const priceCache: Record<string, {
@@ -19,7 +21,7 @@ async function getUSDToAUDRate(): Promise<number> {
   }
 
   try {
-    const result = await yahooFinance.quote('AUDUSD=X');
+    const result = await yf.quote('AUDUSD=X');
     const audusd = result.regularMarketPrice;
     if (!audusd || audusd <= 0) {
       throw new Error('Invalid AUDUSD rate');
@@ -58,7 +60,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const result = await yahooFinance.quote(sanitizedTicker);
+    const result = await yf.quote(sanitizedTicker);
 
     if (!result || !result.regularMarketPrice) {
       return NextResponse.json(
@@ -78,7 +80,7 @@ export async function GET(request: NextRequest) {
       } else {
         try {
           const fxTicker = `${currency}AUD=X`;
-          const fxResult = await yahooFinance.quote(fxTicker);
+          const fxResult = await yf.quote(fxTicker);
           if (fxResult?.regularMarketPrice) {
             priceAUD = price * fxResult.regularMarketPrice;
           }
