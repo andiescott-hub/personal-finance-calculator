@@ -28,7 +28,7 @@ export default function RootLayout({
 
             {/* Main Content Area */}
             <div className="flex-1 ml-0 md:ml-64">
-              <main className="min-h-screen pt-14 md:pt-0 p-4 md:p-8">
+              <main className="min-h-screen pt-16 md:pt-10 px-4 md:px-8 pb-4 md:pb-8">
                 {children}
               </main>
               <footer className="bg-charcoal-dark text-white py-4 text-center text-sm">

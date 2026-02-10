@@ -33,6 +33,7 @@ export interface PortfolioItem {
 
 export interface Mortgage {
   loanAmount: number;
+  currentBalance: number; // actual balance owed today
   interestRate: number; // percentage
   loanTermYears: number;
   paymentsPerYear: number; // 12 = monthly, 26 = fortnightly
@@ -181,6 +182,7 @@ const defaultAssets: Assets = {
   otherAssets: [],
   mortgage: {
     loanAmount: 500000,
+    currentBalance: 450000,
     interestRate: 6.5,
     loanTermYears: 30,
     paymentsPerYear: 12,
@@ -270,7 +272,10 @@ export function FinanceProvider({ children: reactChildren }: { children: ReactNo
         ...(a as unknown as Assets),
         otherAssets: (a.otherAssets as Asset[]) || [],
         portfolioItems: ((a.portfolioItems as PortfolioItem[]) || [{ id: '1', name: 'General Portfolio', currentValue: (a.portfolioValue as number) || 50000, isManual: true }]).map(item => ({ ...item, isManual: item.isManual ?? true })),
-        mortgage: (a.mortgage as Mortgage) || defaultAssets.mortgage,
+        mortgage: {
+          ...((a.mortgage as Mortgage) || defaultAssets.mortgage),
+          currentBalance: (a.mortgage as Mortgage)?.currentBalance ?? (a.mortgage as Mortgage)?.loanAmount ?? defaultAssets.mortgage.currentBalance,
+        },
         retirementSpendingRatio: (a.retirementSpendingRatio as number) ?? defaultAssets.retirementSpendingRatio,
       });
     }

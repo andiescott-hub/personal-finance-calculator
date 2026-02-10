@@ -1,7 +1,7 @@
 import { calculateIncomeTax } from './tax-calculator';
 import { getSGRate } from './super-calculator';
 import { calculateExpenseSummary } from './expense-calculator';
-import { calculateRemainingBalance } from './mortgage-calculator';
+import { calculateMortgagePayment } from './mortgage-calculator';
 import type { IncomeInput } from './income-calculator';
 import type { ExpenseItem } from './expense-calculator';
 import type { Assets, Child, EducationFees } from './finance-context';
@@ -221,6 +221,20 @@ export function calculateForecast(config: ForecastConfig): ForecastResult {
   let lastWorkingSplurge = 0;
   let retirementStartYearCount = 0;
 
+  // Mortgage: track running balance from currentBalance, project forward
+  const mortgageCurrentBalance = config.assets.mortgage.currentBalance ?? config.assets.mortgage.loanAmount;
+  const mortgagePayment = calculateMortgagePayment(
+    config.assets.mortgage.loanAmount,
+    config.assets.mortgage.interestRate,
+    config.assets.mortgage.loanTermYears,
+    config.assets.mortgage.paymentsPerYear
+  );
+  const mortgageRatePerPeriod = config.assets.mortgage.interestRate / 100 / config.assets.mortgage.paymentsPerYear;
+  const mortgageExtraPerPeriod = config.assets.mortgage.paymentsPerYear === 12
+    ? config.assets.mortgage.extraMonthlyPayment
+    : config.assets.mortgage.extraMonthlyPayment * 12 / config.assets.mortgage.paymentsPerYear;
+  let runningMortgageBalance = mortgageCurrentBalance;
+
   // Current calendar year for mortgage calculations
   const actualCurrentYear = new Date().getFullYear();
 
@@ -289,8 +303,7 @@ export function calculateForecast(config: ForecastConfig): ForecastResult {
     let nadieleExpenses = currentNadieleRegularExpenses * expenseInflationFactor;
 
     // Mortgage expenses only apply while mortgage is still active (no inflation - fixed payments)
-    const mortgageYearsElapsed = (actualCurrentYear - config.assets.mortgage.startYear) + yearCount;
-    const mortgageStillActive = mortgageYearsElapsed < config.assets.mortgage.loanTermYears;
+    const mortgageStillActive = runningMortgageBalance > 0;
     const yearMortgageExpenses = mortgageStillActive
       ? currentAndyMortgageExpenses + currentNadieleMortgageExpenses
       : 0;
@@ -417,18 +430,16 @@ export function calculateForecast(config: ForecastConfig): ForecastResult {
     }));
     const otherAssetsValue = otherAssets.reduce((sum, asset) => sum + asset.value, 0);
 
-    // Mortgage: Calculate remaining balance
-    const yearsElapsed = (actualCurrentYear - config.assets.mortgage.startYear) + yearCount;
-    const mortgageBalance = yearsElapsed >= config.assets.mortgage.loanTermYears
-      ? 0
-      : calculateRemainingBalance(
-          config.assets.mortgage.loanAmount,
-          config.assets.mortgage.interestRate,
-          config.assets.mortgage.loanTermYears,
-          config.assets.mortgage.paymentsPerYear,
-          yearsElapsed,
-          config.assets.mortgage.extraMonthlyPayment
-        );
+    // Mortgage: Project balance forward one year from running balance
+    if (yearCount > 0 && runningMortgageBalance > 0) {
+      for (let p = 0; p < config.assets.mortgage.paymentsPerYear; p++) {
+        if (runningMortgageBalance <= 0) break;
+        const interest = runningMortgageBalance * mortgageRatePerPeriod;
+        const principal = mortgagePayment - interest + mortgageExtraPerPeriod;
+        runningMortgageBalance = Math.max(0, runningMortgageBalance - principal);
+      }
+    }
+    const mortgageBalance = runningMortgageBalance;
 
     // Total net worth (assets minus liabilities)
     const totalAssets = totalSuperBalance + portfolioValue + totalCarValue + otherAssetsValue;

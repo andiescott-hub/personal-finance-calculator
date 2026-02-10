@@ -242,7 +242,7 @@ export default function AssetsPage() {
   const totalOtherAssets = (assets.otherAssets || []).reduce((sum, asset) => sum + asset.currentValue, 0);
   const totalSuperBalance = (assets.andySuperBalance || 0) + (assets.nadieleSuperBalance || 0);
   const totalAssets = totalSuperBalance + (assets.portfolioValue || 0) + totalCarValue + totalOtherAssets;
-  const totalNetWorth = totalAssets - (assets.mortgage?.loanAmount || 0);
+  const totalNetWorth = totalAssets - (assets.mortgage?.currentBalance ?? assets.mortgage?.loanAmount ?? 0);
 
   // Calculate mortgage payment
   const monthlyMortgagePayment = assets.mortgage ? calculateMortgagePayment(
@@ -652,6 +652,19 @@ export default function AssetsPage() {
                 setAssets({
                   ...assets,
                   mortgage: { ...(assets.mortgage || {}), loanAmount: val },
+                })
+              }
+              className="border rounded p-2 w-full md:w-32"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">Current Balance</label>
+            <CurrencyInput
+              value={assets.mortgage?.currentBalance ?? assets.mortgage?.loanAmount ?? 0}
+              onChange={(val) =>
+                setAssets({
+                  ...assets,
+                  mortgage: { ...(assets.mortgage || {}), currentBalance: val },
                 })
               }
               className="border rounded p-2 w-full md:w-32"
