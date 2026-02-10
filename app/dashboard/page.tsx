@@ -136,8 +136,8 @@ export default function DashboardPage() {
       </div>
 
       {/* Assets vs Debt Visualization */}
-      <div className="bg-white border border-gray-custom rounded-lg shadow p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Assets vs Debt</h2>
+      <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6 mb-6">
+        <h2 className="text-lg md:text-xl font-semibold mb-4">Assets vs Debt</h2>
         <div className="relative h-12 bg-gray-200 rounded-full overflow-hidden">
           <div
             className="absolute h-full bg-gradient-to-r from-green-400 to-green-600 flex items-center justify-center text-white font-semibold"
@@ -164,8 +164,8 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {/* Asset Breakdown Table */}
-        <div className="bg-white border border-gray-custom rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">Asset Breakdown</h2>
+        <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6">
+          <h2 className="text-lg md:text-xl font-semibold mb-4">Asset Breakdown</h2>
           <div className="space-y-3">
             {assetBreakdown.map((item) => (
               <div key={item.name}>
@@ -194,8 +194,8 @@ export default function DashboardPage() {
         </div>
 
         {/* Pie Chart */}
-        <div className="bg-white border border-gray-custom rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">Asset Allocation</h2>
+        <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6">
+          <h2 className="text-lg md:text-xl font-semibold mb-4">Asset Allocation</h2>
           <div className="flex items-center justify-center">
             <div className="relative w-64 h-64 md:w-96 md:h-96">
               <svg viewBox="0 0 100 100" className="transform -rotate-90">
@@ -262,9 +262,10 @@ export default function DashboardPage() {
       </div>
 
       {/* Net Worth Growth Chart */}
-      <div className="bg-white border border-gray-custom rounded-lg shadow p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Net Worth Projection (Next 20 Years)</h2>
-        <ResponsiveContainer width="100%" height={400}>
+      <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6 mb-6">
+        <h2 className="text-lg md:text-xl font-semibold mb-4">Net Worth Projection (Next 20 Years)</h2>
+        <div className="h-[250px] md:h-[400px]">
+        <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={forecast.projections.slice(0, 20)}>
             <defs>
               <linearGradient id="colorNetWorth" x1="0" y1="0" x2="0" y2="1">
@@ -333,6 +334,7 @@ export default function DashboardPage() {
             />
           </AreaChart>
         </ResponsiveContainer>
+        </div>
         <p className="text-xs text-gray-500 mt-4 text-center">
           Projected growth based on {assets.superGrowthRate}% super growth and{' '}
           {assets.portfolioGrowthRate}% portfolio growth
@@ -343,10 +345,10 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Retirement Age */}
         {retirementProjection && (
-          <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-300 rounded-lg shadow p-6">
+          <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-300 rounded-lg shadow p-4 md:p-6">
             <div className="flex items-center gap-2 mb-2">
               <span className="text-3xl">🎯</span>
-              <h2 className="text-xl font-semibold text-blue-900">At Retirement</h2>
+              <h2 className="text-lg md:text-xl font-semibold text-blue-900">At Retirement</h2>
             </div>
             <p className="text-sm text-blue-700 mb-4">
               Year {retirementProjection.year} (Andy: {retirementProjection.andyAge}, Nadiele:{' '}
@@ -379,10 +381,10 @@ export default function DashboardPage() {
 
         {/* Age 80 */}
         {age80Projection && (
-          <div className="bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-300 rounded-lg shadow p-6">
+          <div className="bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-300 rounded-lg shadow p-4 md:p-6">
             <div className="flex items-center gap-2 mb-2">
               <span className="text-3xl">🌟</span>
-              <h2 className="text-xl font-semibold text-purple-900">At Age 80</h2>
+              <h2 className="text-lg md:text-xl font-semibold text-purple-900">At Age 80</h2>
             </div>
             <p className="text-sm text-purple-700 mb-4">
               Year {age80Projection.year} (Andy: {age80Projection.andyAge}, Nadiele:{' '}

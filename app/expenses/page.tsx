@@ -122,8 +122,8 @@ export default function ExpensesPage() {
       </div>
 
       {/* Summary Totals - at top */}
-      <div className="bg-white border border-gray-custom rounded-lg shadow p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Expense Summary</h2>
+      <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6 mb-6">
+        <h2 className="text-lg md:text-xl font-semibold mb-4">Expense Summary</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Fortnightly */}
           <div className="border rounded p-4">
@@ -197,9 +197,36 @@ export default function ExpensesPage() {
       </div>
 
       {/* Expenses List */}
-      <div className="bg-white border border-gray-custom rounded-lg shadow p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Current Expenses</h2>
-        <div className="overflow-x-auto">
+      <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6 mb-6">
+        <h2 className="text-lg md:text-xl font-semibold mb-4">Current Expenses</h2>
+        <div className="md:hidden space-y-3">
+          {sortedExpenses.map((exp) => (
+            <div key={exp.id} className="border rounded-lg p-3">
+              <div className="flex justify-between items-start mb-2">
+                <div>
+                  <p className="font-medium">{exp.name}</p>
+                  <p className="text-xs text-gray-500">{exp.category}</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-semibold">{formatCurrency(exp.totalAmount)}</p>
+                  <p className="text-xs text-gray-500">{exp.frequency}</p>
+                </div>
+              </div>
+              <div className="flex justify-between text-sm text-gray-600 border-t pt-2 mt-2">
+                <span>Andy {exp.andyPercentage}%: {formatCurrency(exp.andyShare)}</span>
+                <span>Nadiele {exp.nadielePercentage}%: {formatCurrency(exp.nadieleShare)}</span>
+              </div>
+              <div className="mt-2 text-right">
+                {(exp.id === 'mortgage-auto' || exp.id === 'mortgage-extra-auto' || exp.id.startsWith('education-auto-')) ? (
+                  <span className="text-gray-400 text-xs italic">auto</span>
+                ) : (
+                  <button onClick={() => deleteExpense(exp.id, exp.name)} className="text-red-600 text-sm">Delete</button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
               <tr className="bg-charcoal text-white">
@@ -335,8 +362,8 @@ export default function ExpensesPage() {
       </div>
 
       {/* Add New Expense */}
-      <div className="bg-white border border-gray-custom rounded-lg shadow p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Add New Expense</h2>
+      <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6 mb-6">
+        <h2 className="text-lg md:text-xl font-semibold mb-4">Add New Expense</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium mb-2">Name</label>
@@ -412,9 +439,9 @@ export default function ExpensesPage() {
       </div>
 
       {/* Investment Contributions - at bottom */}
-      <div className="bg-gradient-to-br from-green-50 to-blue-50 border-2 border-green-300 rounded-lg shadow p-6">
+      <div className="bg-gradient-to-br from-green-50 to-blue-50 border-2 border-green-300 rounded-lg shadow p-4 md:p-6">
         <div className="flex items-center gap-2 mb-2">
-          <h2 className="text-xl font-semibold text-green-900">Portfolio Investment Contributions</h2>
+          <h2 className="text-lg md:text-xl font-semibold text-green-900">Portfolio Investment Contributions</h2>
         </div>
         <p className="text-sm text-green-700 mb-4">
           Annual contributions that build your investment portfolio during working years. These reduce your disposable income but grow your wealth.

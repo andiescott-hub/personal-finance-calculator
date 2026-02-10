@@ -69,8 +69,8 @@ export default function HomePage() {
       </div>
 
       {/* Configuration */}
-      <div className="bg-white border border-gray-custom rounded-lg shadow p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Configuration</h2>
+      <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6 mb-6">
+        <h2 className="text-lg md:text-xl font-semibold mb-4">Configuration</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
             <label className="block text-sm font-medium mb-2">Financial Year</label>
@@ -119,9 +119,43 @@ export default function HomePage() {
       </div>
 
       {/* Income Inputs */}
-      <div className="bg-white border border-gray-custom rounded-lg shadow p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Income Inputs</h2>
-        <div className="overflow-x-auto">
+      <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6 mb-6">
+        <h2 className="text-lg md:text-xl font-semibold mb-4">Income Inputs</h2>
+
+        {/* Mobile: stacked cards */}
+        <div className="md:hidden space-y-4">
+          {[
+            { label: 'Base Salary', aKey: 'baseSalary' as const, nKey: 'baseSalary' as const },
+            { label: 'Variable Income (Bonus)', aKey: 'variableIncome' as const, nKey: 'variableIncome' as const },
+            { label: 'Allowances', aKey: 'allowances' as const, nKey: 'allowances' as const },
+            { label: 'Pre-Total Adjustments', aKey: 'preTotalAdjustments' as const, nKey: 'preTotalAdjustments' as const },
+          ].map((item) => (
+            <div key={item.label} className="border rounded-lg p-3">
+              <p className="text-sm font-medium text-gray-600 mb-2">{item.label}</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-gray-500">Andy</label>
+                  <CurrencyInput
+                    value={andyIncome[item.aKey]}
+                    onChange={(val) => setAndyIncome({ ...andyIncome, [item.aKey]: val })}
+                    className="w-full border rounded p-2"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-500">Nadiele</label>
+                  <CurrencyInput
+                    value={nadieleIncome[item.nKey]}
+                    onChange={(val) => setNadieleIncome({ ...nadieleIncome, [item.nKey]: val })}
+                    className="w-full border rounded p-2"
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop: table */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
               <tr className="bg-charcoal text-white">
@@ -134,69 +168,37 @@ export default function HomePage() {
               <tr>
                 <td className="border p-3 font-medium">Base Salary</td>
                 <td className="border p-3">
-                  <CurrencyInput
-                    value={andyIncome.baseSalary}
-                    onChange={(val) => setAndyIncome({ ...andyIncome, baseSalary: val })}
-                    className="text-right border rounded p-1 min-w-[100px]"
-                  />
+                  <CurrencyInput value={andyIncome.baseSalary} onChange={(val) => setAndyIncome({ ...andyIncome, baseSalary: val })} className="text-right border rounded p-1 min-w-[100px]" />
                 </td>
                 <td className="border p-3">
-                  <CurrencyInput
-                    value={nadieleIncome.baseSalary}
-                    onChange={(val) => setNadieleIncome({ ...nadieleIncome, baseSalary: val })}
-                    className="text-right border rounded p-1 min-w-[100px]"
-                  />
+                  <CurrencyInput value={nadieleIncome.baseSalary} onChange={(val) => setNadieleIncome({ ...nadieleIncome, baseSalary: val })} className="text-right border rounded p-1 min-w-[100px]" />
                 </td>
               </tr>
               <tr>
                 <td className="border p-3 font-medium">Variable Income (Bonus)</td>
                 <td className="border p-3">
-                  <CurrencyInput
-                    value={andyIncome.variableIncome}
-                    onChange={(val) => setAndyIncome({ ...andyIncome, variableIncome: val })}
-                    className="text-right border rounded p-1 min-w-[100px]"
-                  />
+                  <CurrencyInput value={andyIncome.variableIncome} onChange={(val) => setAndyIncome({ ...andyIncome, variableIncome: val })} className="text-right border rounded p-1 min-w-[100px]" />
                 </td>
                 <td className="border p-3">
-                  <CurrencyInput
-                    value={nadieleIncome.variableIncome}
-                    onChange={(val) => setNadieleIncome({ ...nadieleIncome, variableIncome: val })}
-                    className="text-right border rounded p-1 min-w-[100px]"
-                  />
+                  <CurrencyInput value={nadieleIncome.variableIncome} onChange={(val) => setNadieleIncome({ ...nadieleIncome, variableIncome: val })} className="text-right border rounded p-1 min-w-[100px]" />
                 </td>
               </tr>
               <tr>
                 <td className="border p-3 font-medium">Allowances</td>
                 <td className="border p-3">
-                  <CurrencyInput
-                    value={andyIncome.allowances}
-                    onChange={(val) => setAndyIncome({ ...andyIncome, allowances: val })}
-                    className="text-right border rounded p-1 min-w-[100px]"
-                  />
+                  <CurrencyInput value={andyIncome.allowances} onChange={(val) => setAndyIncome({ ...andyIncome, allowances: val })} className="text-right border rounded p-1 min-w-[100px]" />
                 </td>
                 <td className="border p-3">
-                  <CurrencyInput
-                    value={nadieleIncome.allowances}
-                    onChange={(val) => setNadieleIncome({ ...nadieleIncome, allowances: val })}
-                    className="text-right border rounded p-1 min-w-[100px]"
-                  />
+                  <CurrencyInput value={nadieleIncome.allowances} onChange={(val) => setNadieleIncome({ ...nadieleIncome, allowances: val })} className="text-right border rounded p-1 min-w-[100px]" />
                 </td>
               </tr>
               <tr>
                 <td className="border p-3 font-medium">Pre-Total Adjustments</td>
                 <td className="border p-3">
-                  <CurrencyInput
-                    value={andyIncome.preTotalAdjustments}
-                    onChange={(val) => setAndyIncome({ ...andyIncome, preTotalAdjustments: val })}
-                    className="text-right border rounded p-1 min-w-[100px]"
-                  />
+                  <CurrencyInput value={andyIncome.preTotalAdjustments} onChange={(val) => setAndyIncome({ ...andyIncome, preTotalAdjustments: val })} className="text-right border rounded p-1 min-w-[100px]" />
                 </td>
                 <td className="border p-3">
-                  <CurrencyInput
-                    value={nadieleIncome.preTotalAdjustments}
-                    onChange={(val) => setNadieleIncome({ ...nadieleIncome, preTotalAdjustments: val })}
-                    className="text-right border rounded p-1 min-w-[100px]"
-                  />
+                  <CurrencyInput value={nadieleIncome.preTotalAdjustments} onChange={(val) => setNadieleIncome({ ...nadieleIncome, preTotalAdjustments: val })} className="text-right border rounded p-1 min-w-[100px]" />
                 </td>
               </tr>
             </tbody>
@@ -205,9 +207,19 @@ export default function HomePage() {
       </div>
 
       {/* Gross Income */}
-      <div className="bg-white border border-gray-custom rounded-lg shadow p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Gross Income</h2>
-        <div className="overflow-x-auto">
+      <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6 mb-6">
+        <h2 className="text-lg md:text-xl font-semibold mb-4">Gross Income</h2>
+        <div className="md:hidden space-y-3">
+          <div className="border rounded-lg p-3">
+            <p className="text-sm font-medium text-gray-600 mb-2">Gross Income</p>
+            <div className="grid grid-cols-3 gap-2 text-sm">
+              <div><span className="text-xs text-gray-500 block">Andy</span><span className="font-semibold">{formatCurrency(data.andy.grossIncome)}</span></div>
+              <div><span className="text-xs text-gray-500 block">Nadiele</span><span className="font-semibold">{formatCurrency(data.nadiele.grossIncome)}</span></div>
+              <div><span className="text-xs text-gray-500 block">Combined</span><span className="font-bold">{formatCurrency(data.combined.grossIncome)}</span></div>
+            </div>
+          </div>
+        </div>
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
               <tr className="bg-charcoal text-white">
@@ -236,9 +248,27 @@ export default function HomePage() {
       </div>
 
       {/* Tax Breakdown */}
-      <div className="bg-white border border-gray-custom rounded-lg shadow p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Tax Breakdown</h2>
-        <div className="overflow-x-auto">
+      <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6 mb-6">
+        <h2 className="text-lg md:text-xl font-semibold mb-4">Tax Breakdown</h2>
+        <div className="md:hidden space-y-3">
+          {[
+            { label: 'Income Tax', andy: formatCurrency(data.andy.tax.taxPayable), nadiele: formatCurrency(data.nadiele.tax.taxPayable), combined: formatCurrency(data.andy.tax.taxPayable + data.nadiele.tax.taxPayable) },
+            { label: 'Medicare Levy', andy: formatCurrency(data.andy.tax.medicareLevy), nadiele: formatCurrency(data.nadiele.tax.medicareLevy), combined: formatCurrency(data.andy.tax.medicareLevy + data.nadiele.tax.medicareLevy) },
+            { label: 'Total Tax', andy: formatCurrency(data.andy.tax.totalTax), nadiele: formatCurrency(data.nadiele.tax.totalTax), combined: formatCurrency(data.combined.totalTax) },
+            { label: 'Effective Tax Rate', andy: formatPercent(data.andy.tax.effectiveTaxRate), nadiele: formatPercent(data.nadiele.tax.effectiveTaxRate), combined: formatPercent((data.combined.totalTax / data.combined.grossIncome) * 100) },
+            { label: 'After-Tax Income', andy: formatCurrency(data.andy.afterTaxIncome), nadiele: formatCurrency(data.nadiele.afterTaxIncome), combined: formatCurrency(data.combined.afterTaxIncome) },
+          ].map((row) => (
+            <div key={row.label} className="border rounded-lg p-3">
+              <p className="text-sm font-medium text-gray-600 mb-2">{row.label}</p>
+              <div className="grid grid-cols-3 gap-2 text-sm">
+                <div><span className="text-xs text-gray-500 block">Andy</span><span className="font-semibold">{row.andy}</span></div>
+                <div><span className="text-xs text-gray-500 block">Nadiele</span><span className="font-semibold">{row.nadiele}</span></div>
+                <div><span className="text-xs text-gray-500 block">Combined</span><span className="font-bold">{row.combined}</span></div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
               <tr className="bg-charcoal text-white">
@@ -321,9 +351,27 @@ export default function HomePage() {
       </div>
 
       {/* Superannuation */}
-      <div className="bg-white border border-gray-custom rounded-lg shadow p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Superannuation (FY {financialYear})</h2>
-        <div className="overflow-x-auto">
+      <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6 mb-6">
+        <h2 className="text-lg md:text-xl font-semibold mb-4">Superannuation (FY {financialYear})</h2>
+        <div className="md:hidden space-y-3">
+          {[
+            { label: 'SG Rate', andy: formatPercent(data.andy.super.sgRate), nadiele: formatPercent(data.nadiele.super.sgRate), combined: '—' },
+            { label: 'SG Base', andy: formatCurrency(data.andy.super.sgBase), nadiele: formatCurrency(data.nadiele.super.sgBase), combined: formatCurrency(data.andy.super.sgBase + data.nadiele.super.sgBase) },
+            { label: 'Employer SG', andy: formatCurrency(data.andy.super.employerSG), nadiele: formatCurrency(data.nadiele.super.employerSG), combined: formatCurrency(data.andy.super.employerSG + data.nadiele.super.employerSG) },
+            { label: 'Voluntary Super', andy: formatCurrency(data.andy.super.voluntarySuper), nadiele: formatCurrency(data.nadiele.super.voluntarySuper), combined: formatCurrency(data.andy.super.voluntarySuper + data.nadiele.super.voluntarySuper) },
+            { label: 'Total Super', andy: formatCurrency(data.andy.super.totalSuper), nadiele: formatCurrency(data.nadiele.super.totalSuper), combined: formatCurrency(data.combined.totalSuper) },
+          ].map((row) => (
+            <div key={row.label} className="border rounded-lg p-3">
+              <p className="text-sm font-medium text-gray-600 mb-2">{row.label}</p>
+              <div className="grid grid-cols-3 gap-2 text-sm">
+                <div><span className="text-xs text-gray-500 block">Andy</span><span className="font-semibold">{row.andy}</span></div>
+                <div><span className="text-xs text-gray-500 block">Nadiele</span><span className="font-semibold">{row.nadiele}</span></div>
+                <div><span className="text-xs text-gray-500 block">Combined</span><span className="font-bold">{row.combined}</span></div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
               <tr className="bg-charcoal text-white">
@@ -404,9 +452,26 @@ export default function HomePage() {
       </div>
 
       {/* Spendable Income */}
-      <div className="bg-white border border-gray-custom rounded-lg shadow p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Spendable Income</h2>
-        <div className="overflow-x-auto">
+      <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6 mb-6">
+        <h2 className="text-lg md:text-xl font-semibold mb-4">Spendable Income</h2>
+        <div className="md:hidden space-y-3">
+          {[
+            { label: 'After-Tax Income', andy: formatCurrency(data.andy.afterTaxIncome), nadiele: formatCurrency(data.nadiele.afterTaxIncome), combined: formatCurrency(data.combined.afterTaxIncome) },
+            { label: 'Less: Allowances', andy: formatCurrency(-andyIncome.allowances), nadiele: nadieleIncome.allowances > 0 ? formatCurrency(-nadieleIncome.allowances) : '—', combined: formatCurrency(-(andyIncome.allowances + nadieleIncome.allowances)) },
+            { label: 'Less: Pre-Total Adj.', andy: andyIncome.preTotalAdjustments > 0 ? formatCurrency(-andyIncome.preTotalAdjustments) : '—', nadiele: nadieleIncome.preTotalAdjustments > 0 ? formatCurrency(-nadieleIncome.preTotalAdjustments) : '—', combined: (andyIncome.preTotalAdjustments + nadieleIncome.preTotalAdjustments) > 0 ? formatCurrency(-(andyIncome.preTotalAdjustments + nadieleIncome.preTotalAdjustments)) : '—' },
+            { label: 'Spendable Income', andy: formatCurrency(data.andy.spendableIncome), nadiele: formatCurrency(data.nadiele.spendableIncome), combined: formatCurrency(data.combined.spendableIncome) },
+          ].map((row) => (
+            <div key={row.label} className="border rounded-lg p-3">
+              <p className="text-sm font-medium text-gray-600 mb-2">{row.label}</p>
+              <div className="grid grid-cols-3 gap-2 text-sm">
+                <div><span className="text-xs text-gray-500 block">Andy</span><span className="font-semibold">{row.andy}</span></div>
+                <div><span className="text-xs text-gray-500 block">Nadiele</span><span className="font-semibold">{row.nadiele}</span></div>
+                <div><span className="text-xs text-gray-500 block">Combined</span><span className="font-bold">{row.combined}</span></div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
               <tr className="bg-charcoal text-white">

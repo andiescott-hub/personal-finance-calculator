@@ -178,9 +178,9 @@ export default function AssetsPage() {
       </div>
 
       {/* Net Worth Summary */}
-      <div className="bg-white border border-gray-custom rounded-lg shadow p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Total Net Worth</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6 mb-6">
+        <h2 className="text-lg md:text-xl font-semibold mb-4">Total Net Worth</h2>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           <div className="text-center p-4 bg-purple-50 rounded">
             <p className="text-sm text-gray-600 mb-1">Superannuation</p>
             <p className="text-2xl font-bold text-purple-600">{formatCurrency(totalSuperBalance)}</p>
@@ -205,8 +205,8 @@ export default function AssetsPage() {
       </div>
 
       {/* Retirement Spending Settings */}
-      <div className="bg-white border border-gray-custom rounded-lg shadow p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Retirement Spending Strategy</h2>
+      <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6 mb-6">
+        <h2 className="text-lg md:text-xl font-semibold mb-4">Retirement Spending Strategy</h2>
         <p className="text-sm text-gray-600 mb-4">
           In retirement when expenses exceed income, funds will be drawn from super and portfolio based on this ratio:
         </p>
@@ -218,7 +218,7 @@ export default function AssetsPage() {
             <PercentInput
               value={assets.retirementSpendingRatio || 70}
               onChange={(val) => setAssets({ ...assets, retirementSpendingRatio: val })}
-              className="border rounded p-2 w-32"
+              className="border rounded p-2 w-full md:w-32"
               min={0}
               max={100}
             />
@@ -246,15 +246,15 @@ export default function AssetsPage() {
       </div>
 
       {/* Superannuation */}
-      <div className="bg-white border border-gray-custom rounded-lg shadow p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Superannuation</h2>
+      <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6 mb-6">
+        <h2 className="text-lg md:text-xl font-semibold mb-4">Superannuation</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
             <label className="block text-sm font-medium mb-2">Andy Super Balance</label>
             <CurrencyInput
               value={assets.andySuperBalance}
               onChange={(val) => setAssets({ ...assets, andySuperBalance: val })}
-              className="border rounded p-2 w-32"
+              className="border rounded p-2 w-full md:w-32"
             />
           </div>
           <div>
@@ -262,7 +262,7 @@ export default function AssetsPage() {
             <CurrencyInput
               value={assets.nadieleSuperBalance}
               onChange={(val) => setAssets({ ...assets, nadieleSuperBalance: val })}
-              className="border rounded p-2 w-32"
+              className="border rounded p-2 w-full md:w-32"
             />
           </div>
           <div>
@@ -270,7 +270,7 @@ export default function AssetsPage() {
             <PercentInput
               value={assets.superGrowthRate}
               onChange={(val) => setAssets({ ...assets, superGrowthRate: val })}
-              className="border rounded p-2 w-32"
+              className="border rounded p-2 w-full md:w-32"
               step={0.1}
             />
           </div>
@@ -286,15 +286,15 @@ export default function AssetsPage() {
       </div>
 
       {/* Portfolio */}
-      <div className="bg-white border border-gray-custom rounded-lg shadow p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Investment Portfolio</h2>
+      <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6 mb-6">
+        <h2 className="text-lg md:text-xl font-semibold mb-4">Investment Portfolio</h2>
 
         <div className="mb-4">
           <label className="block text-sm font-medium mb-2">Expected Annual Return (applied to total portfolio)</label>
           <PercentInput
             value={assets.portfolioGrowthRate}
             onChange={(val) => setAssets({ ...assets, portfolioGrowthRate: val })}
-            className="border rounded p-2 w-32"
+            className="border rounded p-2 w-full md:w-32"
             step={0.1}
           />
         </div>
@@ -334,7 +334,26 @@ export default function AssetsPage() {
 
         {/* Portfolio Items List */}
         {(assets.portfolioItems || []).length > 0 && (
-          <div className="overflow-x-auto">
+          <>
+          <div className="md:hidden space-y-3">
+            {(assets.portfolioItems || []).map((item) => (
+              <div key={item.id} className="border rounded-lg p-3">
+                <div className="flex justify-between items-start mb-2">
+                  <p className="font-medium">{item.name}</p>
+                  <p className="font-semibold">{formatCurrency(item.currentValue)}</p>
+                </div>
+                <div className="text-right">
+                  <button
+                    onClick={() => deletePortfolioItem(item.id, item.name)}
+                    className="text-red-600 text-sm"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-charcoal text-white">
@@ -374,6 +393,7 @@ export default function AssetsPage() {
               </tbody>
             </table>
           </div>
+          </>
         )}
 
         {(assets.portfolioItems || []).length === 0 && (
@@ -392,8 +412,8 @@ export default function AssetsPage() {
       </div>
 
       {/* Mortgage */}
-      <div className="bg-white border border-gray-custom rounded-lg shadow p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Mortgage</h2>
+      <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6 mb-6">
+        <h2 className="text-lg md:text-xl font-semibold mb-4">Mortgage</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
           <div>
             <label className="block text-sm font-medium mb-2">Loan Amount</label>
@@ -405,7 +425,7 @@ export default function AssetsPage() {
                   mortgage: { ...(assets.mortgage || {}), loanAmount: val },
                 })
               }
-              className="border rounded p-2 w-32"
+              className="border rounded p-2 w-full md:w-32"
             />
           </div>
           <div>
@@ -418,7 +438,7 @@ export default function AssetsPage() {
                   mortgage: { ...(assets.mortgage || {}), interestRate: val },
                 })
               }
-              className="border rounded p-2 w-32"
+              className="border rounded p-2 w-full md:w-32"
               step={0.01}
             />
           </div>
@@ -433,7 +453,7 @@ export default function AssetsPage() {
                   mortgage: { ...(assets.mortgage || {}), loanTermYears: Number(e.target.value) },
                 })
               }
-              className="border rounded p-2 w-32"
+              className="border rounded p-2 w-full md:w-32"
             />
           </div>
           <div>
@@ -446,7 +466,7 @@ export default function AssetsPage() {
                   mortgage: { ...(assets.mortgage || {}), paymentsPerYear: Number(e.target.value) },
                 })
               }
-              className="border rounded p-2 w-32"
+              className="border rounded p-2 w-full md:w-32"
             >
               <option value={12}>Monthly</option>
               <option value={26}>Fortnightly</option>
@@ -464,7 +484,7 @@ export default function AssetsPage() {
                   mortgage: { ...(assets.mortgage || {}), startYear: Number(e.target.value) },
                 })
               }
-              className="border rounded p-2 w-32"
+              className="border rounded p-2 w-full md:w-32"
             />
           </div>
         </div>
@@ -527,8 +547,8 @@ export default function AssetsPage() {
       </div>
 
       {/* Other Assets */}
-      <div className="bg-white border border-gray-custom rounded-lg shadow p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Other Assets</h2>
+      <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6 mb-6">
+        <h2 className="text-lg md:text-xl font-semibold mb-4">Other Assets</h2>
         <p className="text-sm text-gray-600 mb-4">
           Add investment properties, collectibles, jewelry, or other assets
         </p>
@@ -543,7 +563,7 @@ export default function AssetsPage() {
                 type="text"
                 value={newAsset.name}
                 onChange={(e) => setNewAsset({ ...newAsset, name: e.target.value })}
-                className="border rounded p-2 w-32"
+                className="border rounded p-2 w-full md:w-32"
                 placeholder="e.g., Investment Property"
               />
             </div>
@@ -553,7 +573,7 @@ export default function AssetsPage() {
                 type="text"
                 value={newAsset.category}
                 onChange={(e) => setNewAsset({ ...newAsset, category: e.target.value })}
-                className="border rounded p-2 w-32"
+                className="border rounded p-2 w-full md:w-32"
                 placeholder="e.g., Property"
               />
             </div>
@@ -562,7 +582,7 @@ export default function AssetsPage() {
               <CurrencyInput
                 value={newAsset.currentValue || 0}
                 onChange={(val) => setNewAsset({ ...newAsset, currentValue: val })}
-                className="border rounded p-2 w-32"
+                className="border rounded p-2 w-full md:w-32"
               />
             </div>
             <div>
@@ -570,7 +590,7 @@ export default function AssetsPage() {
               <PercentInput
                 value={newAsset.annualGrowthRate || 0}
                 onChange={(val) => setNewAsset({ ...newAsset, annualGrowthRate: val })}
-                className="border rounded p-2 w-32"
+                className="border rounded p-2 w-full md:w-32"
                 step={0.1}
               />
             </div>
@@ -587,7 +607,32 @@ export default function AssetsPage() {
 
         {/* Assets List */}
         {(assets.otherAssets || []).length > 0 && (
-          <div className="overflow-x-auto">
+          <>
+          <div className="md:hidden space-y-3">
+            {(assets.otherAssets || []).map((asset) => (
+              <div key={asset.id} className="border rounded-lg p-3">
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <p className="font-medium">{asset.name}</p>
+                    <p className="text-xs text-gray-500">{asset.category}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-semibold">{formatCurrency(asset.currentValue)}</p>
+                    <p className="text-xs text-gray-500">{asset.annualGrowthRate}% growth</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <button
+                    onClick={() => deleteAsset(asset.id)}
+                    className="text-red-600 text-sm"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-charcoal text-white">
@@ -645,6 +690,7 @@ export default function AssetsPage() {
               </tbody>
             </table>
           </div>
+          </>
         )}
 
         {(assets.otherAssets || []).length === 0 && (
@@ -662,8 +708,8 @@ export default function AssetsPage() {
       </div>
 
       {/* Cars */}
-      <div className="bg-white border border-gray-custom rounded-lg shadow p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Vehicles</h2>
+      <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6 mb-6">
+        <h2 className="text-lg md:text-xl font-semibold mb-4">Vehicles</h2>
 
         {/* Add Car Form */}
         <div className="mb-6 p-4 bg-gray-50 rounded">
@@ -675,7 +721,7 @@ export default function AssetsPage() {
                 type="text"
                 value={newCar.name}
                 onChange={(e) => setNewCar({ ...newCar, name: e.target.value })}
-                className="border rounded p-2 w-32"
+                className="border rounded p-2 w-full md:w-32"
                 placeholder="e.g., Toyota Camry"
               />
             </div>
@@ -684,7 +730,7 @@ export default function AssetsPage() {
               <CurrencyInput
                 value={newCar.currentValue || 0}
                 onChange={(val) => setNewCar({ ...newCar, currentValue: val })}
-                className="border rounded p-2 w-32"
+                className="border rounded p-2 w-full md:w-32"
               />
             </div>
             <div>
@@ -692,7 +738,7 @@ export default function AssetsPage() {
               <PercentInput
                 value={newCar.annualDepreciation || 15}
                 onChange={(val) => setNewCar({ ...newCar, annualDepreciation: val })}
-                className="border rounded p-2 w-32"
+                className="border rounded p-2 w-full md:w-32"
                 step={0.1}
               />
             </div>
@@ -709,7 +755,29 @@ export default function AssetsPage() {
 
         {/* Cars List */}
         {(assets.cars || []).length > 0 && (
-          <div className="overflow-x-auto">
+          <>
+          <div className="md:hidden space-y-3">
+            {(assets.cars || []).map((car) => (
+              <div key={car.id} className="border rounded-lg p-3">
+                <div className="flex justify-between items-start mb-2">
+                  <p className="font-medium">{car.name}</p>
+                  <div className="text-right">
+                    <p className="font-semibold">{formatCurrency(car.currentValue)}</p>
+                    <p className="text-xs text-gray-500">{car.annualDepreciation}% depreciation</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <button
+                    onClick={() => deleteCar(car.id)}
+                    className="text-red-600 text-sm"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-charcoal text-white">
@@ -758,6 +826,7 @@ export default function AssetsPage() {
               </tbody>
             </table>
           </div>
+          </>
         )}
 
         {(assets.cars || []).length === 0 && (

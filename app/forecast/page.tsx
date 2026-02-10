@@ -153,8 +153,8 @@ export default function ForecastPage() {
       </div>
 
       {/* Configuration */}
-      <div className="bg-white border border-gray-custom rounded-lg shadow p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Forecast Settings</h2>
+      <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6 mb-6">
+        <h2 className="text-lg md:text-xl font-semibold mb-4">Forecast Settings</h2>
 
         {/* Current Ages and Retirement Ages */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -229,23 +229,23 @@ export default function ForecastPage() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <div className="bg-white border border-gray-custom rounded-lg shadow p-6">
+        <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6">
           <h3 className="text-sm font-medium text-gray-600 mb-2">Total Years</h3>
           <p className="text-3xl font-bold text-charcoal">{forecast.summary.totalYears}</p>
         </div>
-        <div className="bg-white border border-gray-custom rounded-lg shadow p-6">
+        <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6">
           <h3 className="text-sm font-medium text-gray-600 mb-2">Total Income Earned</h3>
           <p className="text-3xl font-bold text-green-600">
             {formatCurrency(forecast.summary.totalIncomeEarned)}
           </p>
         </div>
-        <div className="bg-white border border-gray-custom rounded-lg shadow p-6">
+        <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6">
           <h3 className="text-sm font-medium text-gray-600 mb-2">Total Tax Paid</h3>
           <p className="text-3xl font-bold text-red-600">
             {formatCurrency(forecast.summary.totalTaxPaid)}
           </p>
         </div>
-        <div className="bg-white border border-gray-custom rounded-lg shadow p-6">
+        <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6">
           <h3 className="text-sm font-medium text-gray-600 mb-2">Total Super Contributed</h3>
           <p className="text-3xl font-bold text-purple-600">
             {formatCurrency(forecast.summary.totalSuperContributed)}
@@ -254,13 +254,13 @@ export default function ForecastPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <div className="bg-white border border-gray-custom rounded-lg shadow p-6">
+        <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6">
           <h3 className="text-sm font-medium text-gray-600 mb-2">Total Expenses</h3>
           <p className="text-3xl font-bold text-orange-600">
             {formatCurrency(forecast.summary.totalExpenses)}
           </p>
         </div>
-        <div className="bg-white border border-gray-custom rounded-lg shadow p-6">
+        <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6">
           <h3 className="text-sm font-medium text-gray-600 mb-2">Projected Net Worth at 80</h3>
           <p className="text-3xl font-bold text-tan">
             {formatCurrency(
@@ -271,7 +271,7 @@ export default function ForecastPage() {
       </div>
 
       {/* View Controls */}
-      <div className="bg-white border border-gray-custom rounded-lg shadow p-6 mb-6">
+      <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6 mb-6">
         <div className="flex flex-wrap gap-4 items-center">
           <div>
             <label className="block text-sm font-medium mb-2">View Mode</label>
@@ -350,8 +350,8 @@ export default function ForecastPage() {
         if (!retirementProjection || !age80Projection) return null;
 
         return (
-          <div className="bg-white border border-gray-custom rounded-lg shadow p-6 mb-6">
-            <h2 className="text-xl font-semibold mb-4">🎯 Retirement Milestones</h2>
+          <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6 mb-6">
+            <h2 className="text-lg md:text-xl font-semibold mb-4">🎯 Retirement Milestones</h2>
             <p className="text-sm text-gray-600 mb-4">
               Compare your super and portfolio balances at key milestones to determine the best retirement spending ratio.
             </p>
@@ -436,9 +436,52 @@ export default function ForecastPage() {
 
       {/* Projections Table */}
       {viewMode === 'table' && (
-        <div className="bg-white border border-gray-custom rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">Year-by-Year Projections</h2>
-          <div className="overflow-x-auto max-h-[600px]">
+        <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6">
+          <h2 className="text-lg md:text-xl font-semibold mb-4">Year-by-Year Projections</h2>
+          {/* Mobile: simplified table with Year, Ages, Net Worth only */}
+          <div className="md:hidden overflow-x-auto max-h-[600px]">
+            <table className="w-full border-collapse text-sm relative">
+              <thead className="sticky top-0 z-20">
+                <tr className="bg-charcoal text-white">
+                  <th className="border p-2 text-left">Year</th>
+                  <th className="border p-2 text-center">Ages</th>
+                  <th className="border p-2 text-right">Net Worth</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredProjections.map((projection) => {
+                  const isRetirementYear =
+                    projection.andyAge === andyRetirementAge ||
+                    projection.nadieleAge === nadieleRetirementAge;
+
+                  return (
+                    <tr
+                      key={projection.year}
+                      className={`hover:bg-gray-50 ${
+                        isRetirementYear ? 'bg-purple-50 font-medium' : ''
+                      }`}
+                    >
+                      <td className={`border p-2 font-semibold ${
+                        isRetirementYear ? 'bg-purple-50' : 'bg-white'
+                      }`}>
+                        {projection.calendarYear}
+                      </td>
+                      <td className="border p-2 text-center text-xs">
+                        {projection.andyAge}/{projection.nadieleAge}
+                      </td>
+                      <td className={`border p-2 text-right font-bold text-charcoal ${
+                        isRetirementYear ? 'bg-purple-100' : 'bg-cream'
+                      }`}>
+                        {formatCurrency(projection.totalNetWorth)}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          {/* Desktop: full table */}
+          <div className="hidden md:block overflow-x-auto max-h-[600px]">
             <table className="w-full border-collapse text-sm relative">
               <thead className="sticky top-0 z-20">
                 <tr className="bg-charcoal text-white">
@@ -507,13 +550,14 @@ export default function ForecastPage() {
 
       {/* Chart View */}
       {viewMode === 'chart' && (
-        <div className="bg-white border border-gray-custom rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">Financial Forecast Over Time</h2>
+        <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6">
+          <h2 className="text-lg md:text-xl font-semibold mb-4">Financial Forecast Over Time</h2>
 
           {/* Net Worth Chart */}
           <div className="mb-8">
             <h3 className="text-lg font-medium mb-4 text-gray-700">Net Worth Projection</h3>
-            <ResponsiveContainer width="100%" height={400}>
+            <div className="h-[250px] md:h-[400px]">
+            <ResponsiveContainer width="100%" height="100%">
               <LineChart data={filteredProjections}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                 <XAxis
@@ -565,12 +609,14 @@ export default function ForecastPage() {
                 />
               </LineChart>
             </ResponsiveContainer>
+            </div>
           </div>
 
           {/* Income vs Expenses Chart */}
           <div>
             <h3 className="text-lg font-medium mb-4 text-gray-700">Income vs Expenses</h3>
-            <ResponsiveContainer width="100%" height={400}>
+            <div className="h-[250px] md:h-[400px]">
+            <ResponsiveContainer width="100%" height="100%">
               <LineChart data={filteredProjections}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                 <XAxis
@@ -622,13 +668,14 @@ export default function ForecastPage() {
                 />
               </LineChart>
             </ResponsiveContainer>
+            </div>
           </div>
         </div>
       )}
 
       {/* Financial Milestones Chart */}
-      <div className="bg-white border border-gray-custom rounded-lg shadow p-6 mt-6 mb-6">
-        <h2 className="text-xl font-semibold mb-2">Financial Milestones</h2>
+      <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6 mt-6 mb-6">
+        <h2 className="text-lg md:text-xl font-semibold mb-2">Financial Milestones</h2>
         <p className="text-sm text-gray-500 mb-4">
           Expense breakdown and income sources over time, showing when key financial events occur
         </p>
@@ -659,7 +706,8 @@ export default function ForecastPage() {
 
         {/* Expense Breakdown Chart */}
         <p className="text-sm font-medium text-gray-600 mb-2">Expense Components</p>
-        <ResponsiveContainer width="100%" height={300}>
+        <div className="h-[200px] md:h-[300px]">
+        <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={forecast.projections}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
             <XAxis dataKey="calendarYear" stroke="#6b7280" tick={{ fontSize: 11 }} />
@@ -685,10 +733,12 @@ export default function ForecastPage() {
             )}
           </AreaChart>
         </ResponsiveContainer>
+        </div>
 
         {/* Income Sources Chart */}
         <p className="text-sm font-medium text-gray-600 mb-2 mt-6">Income Sources</p>
-        <ResponsiveContainer width="100%" height={300}>
+        <div className="h-[200px] md:h-[300px]">
+        <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={forecast.projections}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
             <XAxis dataKey="calendarYear" stroke="#6b7280" tick={{ fontSize: 11 }} />
@@ -710,6 +760,7 @@ export default function ForecastPage() {
             )}
           </AreaChart>
         </ResponsiveContainer>
+        </div>
       </div>
 
       {/* Info Note */}

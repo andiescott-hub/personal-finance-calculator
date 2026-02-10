@@ -57,9 +57,9 @@ export default function EducationPage() {
       </div>
 
       {/* Children Section */}
-      <div className="bg-white border border-gray-custom rounded-lg shadow p-6 mb-6">
+      <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6 mb-6">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Children</h2>
+          <h2 className="text-lg md:text-xl font-semibold">Children</h2>
           <button
             onClick={handleAddChild}
             className="bg-tan text-white px-4 py-2 rounded hover:bg-charcoal text-sm"
@@ -80,7 +80,7 @@ export default function EducationPage() {
                 {editingChild === child.id ? (
                   // Edit Mode
                   <div className="space-y-3">
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium mb-1">Name</label>
                         <input
@@ -172,14 +172,14 @@ export default function EducationPage() {
       </div>
 
       {/* Fee Structure Section */}
-      <div className="bg-white border border-gray-custom rounded-lg shadow p-6">
-        <h2 className="text-xl font-semibold mb-4">Fee Structure</h2>
+      <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6">
+        <h2 className="text-lg md:text-xl font-semibold mb-4">Fee Structure</h2>
         <p className="text-sm text-gray-600 mb-4">
           Base year: {educationFees.baseYear} (fees will be inflated in forecast)
         </p>
 
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1">ELP3 Annual Fee</label>
               <CurrencyInput
@@ -198,7 +198,7 @@ export default function EducationPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1">
                 Prep to Year 4 Annual Fee
@@ -225,7 +225,7 @@ export default function EducationPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1">
                 Years 7 to 9 Annual Fee

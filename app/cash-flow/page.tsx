@@ -140,7 +140,7 @@ export default function CashFlowPage() {
       </div>
 
       {/* View Mode Toggle */}
-      <div className="bg-white border border-gray-custom rounded-lg shadow p-6 mb-6">
+      <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6 mb-6">
         <div className="flex flex-wrap gap-2 md:gap-4">
           <button
             onClick={() => setViewMode('fortnightly')}
@@ -176,11 +176,27 @@ export default function CashFlowPage() {
       </div>
 
       {/* Cash Flow Breakdown */}
-      <div className="bg-white border border-gray-custom rounded-lg shadow p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">
+      <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6 mb-6">
+        <h2 className="text-lg md:text-xl font-semibold mb-4">
           Cash Flow Breakdown ({viewMode.charAt(0).toUpperCase() + viewMode.slice(1)})
         </h2>
-        <div className="overflow-x-auto">
+        <div className="md:hidden space-y-3">
+          {[
+            { label: 'Spendable Income', andy: data.andy.spendable, nadiele: data.nadiele.spendable, combined: data.combined.spendable, colorClass: 'text-green-700', prefix: '' },
+            { label: 'Less: Expenses', andy: data.andy.expenses, nadiele: data.nadiele.expenses, combined: data.combined.expenses, colorClass: 'text-red-600', prefix: '-' },
+            { label: 'Disposable Income', andy: data.andy.disposable, nadiele: data.nadiele.disposable, combined: data.combined.disposable, colorClass: data.combined.disposable >= 0 ? 'text-green-700' : 'text-red-700', bold: true, prefix: '' },
+          ].map((row) => (
+            <div key={row.label} className="border rounded-lg p-3">
+              <p className={`text-sm font-medium mb-2 ${row.bold ? 'text-base font-bold' : 'text-gray-600'}`}>{row.label}</p>
+              <div className="grid grid-cols-3 gap-2 text-sm">
+                <div><span className="text-xs text-gray-500 block">Andy</span><span className={`font-semibold ${row.colorClass}`}>{row.prefix}{formatCurrency(row.andy)}</span></div>
+                <div><span className="text-xs text-gray-500 block">Nadiele</span><span className={`font-semibold ${row.colorClass}`}>{row.prefix}{formatCurrency(row.nadiele)}</span></div>
+                <div><span className="text-xs text-gray-500 block">Combined</span><span className={`font-bold ${row.colorClass}`}>{row.prefix}{formatCurrency(row.combined)}</span></div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
               <tr className="bg-charcoal text-white">
@@ -251,8 +267,8 @@ export default function CashFlowPage() {
       </div>
 
       {/* All Views Summary */}
-      <div className="bg-white border border-gray-custom rounded-lg shadow p-6">
-        <h2 className="text-xl font-semibold mb-4">Complete Cash Flow Summary</h2>
+      <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6">
+        <h2 className="text-lg md:text-xl font-semibold mb-4">Complete Cash Flow Summary</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Fortnightly */}
           <div className="border rounded p-4">

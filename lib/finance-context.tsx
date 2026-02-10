@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback, ReactNode } from 'react';
 import type { IncomeInput } from './income-calculator';
 import type { ExpenseItem } from './expense-calculator';
 import { calculateMortgagePayment } from './mortgage-calculator';
@@ -241,57 +241,84 @@ export function FinanceProvider({ children: reactChildren }: { children: ReactNo
   const [children, setChildren] = useState<Child[]>(defaultChildren);
   const [educationFees, setEducationFees] = useState<EducationFees>(defaultEducationFees);
 
-  // Load from localStorage on mount
-  useEffect(() => {
-    setMounted(true);
-
-    let savedData = localStorage.getItem('financeAppData');
-
-    // Auto-restore if no data exists
-    if (!savedData) {
-      const restoreData = {financialYear:"2025-26",includeMedicare:true,andyIncome:{baseSalary:90000,variableIncome:10000,allowances:5000,preTotalAdjustments:0},nadieleIncome:{baseSalary:75000,variableIncome:5000,allowances:0,preTotalAdjustments:0},andyVoluntarySuper:2,nadieleVoluntarySuper:2,andyPortfolioContribution:0,nadielePortfolioContribution:0,expenses:[{id:"2",name:"Groceries",category:"Food",amount:300,frequency:"weekly",andyProportion:50,nadieleProportion:50},{id:"3",name:"Utilities",category:"Bills",amount:400,frequency:"monthly",andyProportion:55,nadieleProportion:45},{id:"mortgage-auto",name:"Mortgage Payment",category:"Housing",amount:3160.34,frequency:"monthly",andyProportion:50,nadieleProportion:50}],andyCurrentAge:35,nadieleCurrentAge:33,andyRetirementAge:67,nadieleRetirementAge:67,annualIncomeIncrease:3,annualInflationRate:2.5,assets:{andySuperBalance:150000,nadieleSuperBalance:120000,superGrowthRate:7,portfolioValue:50000,portfolioGrowthRate:7,portfolioItems:[{id:"1",name:"General Portfolio",currentValue:50000}],cars:[{id:"1",name:"Car 1",currentValue:25000,annualDepreciation:15}],otherAssets:[],mortgage:{loanAmount:500000,interestRate:6.5,loanTermYears:30,paymentsPerYear:12,startYear:2020,extraMonthlyPayment:0},retirementSpendingRatio:70},children:[{id:"1",name:"Tristan",currentYearLevel:1,currentYear:2026}],educationFees:{elp3:6990,elp4:10500,prepToYear4:11500,year5And6:15990,year7To9:21990,year10To12:27990,baseYear:2026}};
-      localStorage.setItem('financeAppData', JSON.stringify(restoreData));
-      savedData = JSON.stringify(restoreData);
+  // Helper to apply saved data to state
+  const applyData = useCallback((data: Record<string, unknown>) => {
+    if (data.financialYear) setFinancialYear(data.financialYear as string);
+    if (data.includeMedicare !== undefined) setIncludeMedicare(data.includeMedicare as boolean);
+    if (data.andyIncome) setAndyIncome(data.andyIncome as IncomeInput);
+    if (data.nadieleIncome) setNadieleIncome(data.nadieleIncome as IncomeInput);
+    if (data.andyVoluntarySuper !== undefined) setAndyVoluntarySuper(data.andyVoluntarySuper as number);
+    if (data.nadieleVoluntarySuper !== undefined) setNadieleVoluntarySuper(data.nadieleVoluntarySuper as number);
+    if (data.andyPortfolioContribution !== undefined) setAndyPortfolioContribution(data.andyPortfolioContribution as number);
+    if (data.nadielePortfolioContribution !== undefined) setNadielePortfolioContribution(data.nadielePortfolioContribution as number);
+    if (data.expenses) setExpenses(data.expenses as ExpenseItem[]);
+    if (data.andyCurrentAge !== undefined) setAndyCurrentAge(data.andyCurrentAge as number);
+    if (data.nadieleCurrentAge !== undefined) setNadieleCurrentAge(data.nadieleCurrentAge as number);
+    if (data.andyRetirementAge !== undefined) setAndyRetirementAge(data.andyRetirementAge as number);
+    if (data.nadieleRetirementAge !== undefined) setNadieleRetirementAge(data.nadieleRetirementAge as number);
+    if (data.annualIncomeIncrease !== undefined) setAnnualIncomeIncrease(data.annualIncomeIncrease as number);
+    if (data.annualInflationRate !== undefined) setAnnualInflationRate(data.annualInflationRate as number);
+    if (data.assets) {
+      const a = data.assets as Record<string, unknown>;
+      setAssets({
+        ...defaultAssets,
+        ...(a as unknown as Assets),
+        otherAssets: (a.otherAssets as Asset[]) || [],
+        portfolioItems: (a.portfolioItems as PortfolioItem[]) || [{ id: '1', name: 'General Portfolio', currentValue: (a.portfolioValue as number) || 50000 }],
+        mortgage: (a.mortgage as Mortgage) || defaultAssets.mortgage,
+        retirementSpendingRatio: (a.retirementSpendingRatio as number) ?? defaultAssets.retirementSpendingRatio,
+      });
     }
-
-    if (savedData) {
-      try {
-        const data = JSON.parse(savedData);
-        if (data.financialYear) setFinancialYear(data.financialYear);
-        if (data.includeMedicare !== undefined) setIncludeMedicare(data.includeMedicare);
-        if (data.andyIncome) setAndyIncome(data.andyIncome);
-        if (data.nadieleIncome) setNadieleIncome(data.nadieleIncome);
-        if (data.andyVoluntarySuper !== undefined) setAndyVoluntarySuper(data.andyVoluntarySuper);
-        if (data.nadieleVoluntarySuper !== undefined) setNadieleVoluntarySuper(data.nadieleVoluntarySuper);
-        if (data.andyPortfolioContribution !== undefined) setAndyPortfolioContribution(data.andyPortfolioContribution);
-        if (data.nadielePortfolioContribution !== undefined) setNadielePortfolioContribution(data.nadielePortfolioContribution);
-        if (data.expenses) setExpenses(data.expenses);
-        if (data.andyCurrentAge !== undefined) setAndyCurrentAge(data.andyCurrentAge);
-        if (data.nadieleCurrentAge !== undefined) setNadieleCurrentAge(data.nadieleCurrentAge);
-        if (data.andyRetirementAge !== undefined) setAndyRetirementAge(data.andyRetirementAge);
-        if (data.nadieleRetirementAge !== undefined) setNadieleRetirementAge(data.nadieleRetirementAge);
-        if (data.annualIncomeIncrease !== undefined) setAnnualIncomeIncrease(data.annualIncomeIncrease);
-        if (data.annualInflationRate !== undefined) setAnnualInflationRate(data.annualInflationRate);
-        if (data.assets) {
-          // Merge with defaults to handle missing fields from old data
-          setAssets({
-            ...defaultAssets,
-            ...data.assets,
-            otherAssets: data.assets.otherAssets || [],
-            portfolioItems: data.assets.portfolioItems || [{ id: '1', name: 'General Portfolio', currentValue: data.assets.portfolioValue || 50000 }],
-            mortgage: data.assets.mortgage || defaultAssets.mortgage,
-            retirementSpendingRatio: data.assets.retirementSpendingRatio ?? defaultAssets.retirementSpendingRatio,
-          });
-        }
-        if (data.children) setChildren(data.children);
-        if (data.educationFees) setEducationFees(data.educationFees);
-      } catch (e) {
-        console.error('Failed to load saved data:', e);
-      }
-    }
+    if (data.children) setChildren(data.children as Child[]);
+    if (data.educationFees) setEducationFees(data.educationFees as EducationFees);
   }, []);
 
-  // Save to localStorage whenever data changes
+  // Cloud sync: debounced save ref
+  const cloudSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Load from cloud first, then localStorage on mount
+  useEffect(() => {
+    async function loadData() {
+      let data: Record<string, unknown> | null = null;
+
+      // Try cloud first
+      try {
+        const res = await fetch('/api/data');
+        if (res.ok) {
+          const cloudData = await res.json();
+          if (cloudData && typeof cloudData === 'object' && cloudData.financialYear) {
+            data = typeof cloudData === 'string' ? JSON.parse(cloudData) : cloudData;
+            // Also update localStorage with cloud data
+            if (data) localStorage.setItem('financeAppData', JSON.stringify(data));
+          }
+        }
+      } catch {
+        // Cloud not available, fall back to localStorage
+      }
+
+      // Fall back to localStorage
+      if (!data) {
+        const savedData = localStorage.getItem('financeAppData');
+        if (savedData) {
+          try {
+            data = JSON.parse(savedData);
+          } catch {
+            // corrupt localStorage
+          }
+        }
+      }
+
+      if (data) {
+        applyData(data);
+      }
+
+      setMounted(true);
+    }
+
+    loadData();
+  }, [applyData]);
+
+  // Save to localStorage and cloud whenever data changes
   useEffect(() => {
     if (!mounted) return; // Don't save on initial mount
 
@@ -314,9 +341,23 @@ export function FinanceProvider({ children: reactChildren }: { children: ReactNo
       assets,
       children,
       educationFees,
+      lastModified: Date.now(),
     };
 
+    // Save to localStorage immediately
     localStorage.setItem('financeAppData', JSON.stringify(dataToSave));
+
+    // Save to cloud with 2s debounce
+    if (cloudSaveTimer.current) clearTimeout(cloudSaveTimer.current);
+    cloudSaveTimer.current = setTimeout(() => {
+      fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dataToSave),
+      }).catch(() => {
+        // Cloud save failed silently - localStorage is still the source of truth
+      });
+    }, 2000);
   }, [
     mounted,
     financialYear,
