@@ -39,6 +39,8 @@ export default function DashboardPage() {
     includeMedicare,
     children,
     educationFees,
+    andyNovatedLease,
+    nadieleNovatedLease,
   } = useFinance();
 
   // Calculate current net worth
@@ -82,6 +84,8 @@ export default function DashboardPage() {
     includeMedicareLevy: includeMedicare,
     children,
     educationFees,
+    andyNovatedLease,
+    nadieleNovatedLease,
   });
 
   const retirementProjection = forecast.projections.find(

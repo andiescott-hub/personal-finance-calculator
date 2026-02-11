@@ -27,6 +27,8 @@ export default function ExpensesPage() {
     includeMedicare,
     andyVoluntarySuper,
     nadieleVoluntarySuper,
+    andyNovatedLease,
+    nadieleNovatedLease,
   } = useFinance();
 
   // Calculate spendable income to derive expense ratio
@@ -41,7 +43,11 @@ export default function ExpensesPage() {
       andy: andyIncome.allowances + andyIncome.preTotalAdjustments,
       nadiele: nadieleIncome.allowances + nadieleIncome.preTotalAdjustments,
     },
-  }), [includeMedicare, financialYear, andyVoluntarySuper, nadieleVoluntarySuper, andyIncome, nadieleIncome]);
+    novatedLease: {
+      andy: { preTaxAnnual: andyNovatedLease.preTaxAnnual, postTaxAnnual: andyNovatedLease.postTaxAnnual },
+      nadiele: { preTaxAnnual: nadieleNovatedLease.preTaxAnnual, postTaxAnnual: nadieleNovatedLease.postTaxAnnual },
+    },
+  }), [includeMedicare, financialYear, andyVoluntarySuper, nadieleVoluntarySuper, andyIncome, nadieleIncome, andyNovatedLease, nadieleNovatedLease]);
 
   const incomeData = useMemo(
     () => calculateHouseholdIncome(andyIncome, nadieleIncome, incomeConfig),

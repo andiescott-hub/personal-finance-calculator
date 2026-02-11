@@ -57,6 +57,10 @@ export interface CalculationConfig {
     andy: number; // e.g., car allowance
     nadiele: number;
   };
+  novatedLease?: {
+    andy: { preTaxAnnual: number; postTaxAnnual: number };
+    nadiele: { preTaxAnnual: number; postTaxAnnual: number };
+  };
 }
 
 /**
@@ -67,16 +71,19 @@ export function calculatePersonIncome(
   voluntarySuperRate: number,
   financialYear: string,
   includeMedicareLevy: boolean,
-  spendableExclusion: number = 0
+  spendableExclusion: number = 0,
+  novatedLeasePreTax: number = 0,
+  novatedLeasePostTax: number = 0,
 ): PersonIncomeData {
-  // Calculate gross income
+  // Calculate gross income (novated lease pre-tax reduces taxable income)
   const grossIncome =
     input.baseSalary +
     input.variableIncome +
     input.allowances +
-    input.preTotalAdjustments;
+    input.preTotalAdjustments -
+    novatedLeasePreTax;
 
-  // Calculate tax
+  // Calculate tax on reduced taxable income
   const tax = calculateIncomeTax(grossIncome, includeMedicareLevy);
 
   // Calculate super
@@ -91,8 +98,8 @@ export function calculatePersonIncome(
   // After-tax income
   const afterTaxIncome = tax.afterTaxIncome;
 
-  // Spendable income (after-tax minus exclusions)
-  const spendableIncome = afterTaxIncome - spendableExclusion;
+  // Spendable income (after-tax minus exclusions minus post-tax lease)
+  const spendableIncome = afterTaxIncome - spendableExclusion - novatedLeasePostTax;
 
   return {
     baseSalary: input.baseSalary,
@@ -121,7 +128,9 @@ export function calculateHouseholdIncome(
     config.voluntarySuperRate.andy,
     config.financialYear,
     config.includeMedicareLevy,
-    config.spendableExclusions.andy
+    config.spendableExclusions.andy,
+    config.novatedLease?.andy.preTaxAnnual || 0,
+    config.novatedLease?.andy.postTaxAnnual || 0,
   );
 
   // Calculate Nadiele's income
@@ -130,7 +139,9 @@ export function calculateHouseholdIncome(
     config.voluntarySuperRate.nadiele,
     config.financialYear,
     config.includeMedicareLevy,
-    config.spendableExclusions.nadiele
+    config.spendableExclusions.nadiele,
+    config.novatedLease?.nadiele.preTaxAnnual || 0,
+    config.novatedLease?.nadiele.postTaxAnnual || 0,
   );
 
   // Calculate combined totals

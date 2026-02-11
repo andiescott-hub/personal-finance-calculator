@@ -24,6 +24,8 @@ export default function CashFlowPage() {
     nadieleIncome,
     andyVoluntarySuper,
     nadieleVoluntarySuper,
+    andyNovatedLease,
+    nadieleNovatedLease,
     expenses,
   } = useFinance();
 
@@ -37,6 +39,10 @@ export default function CashFlowPage() {
     spendableExclusions: {
       andy: andyIncome.allowances + andyIncome.preTotalAdjustments,
       nadiele: nadieleIncome.allowances + nadieleIncome.preTotalAdjustments,
+    },
+    novatedLease: {
+      andy: { preTaxAnnual: andyNovatedLease.preTaxAnnual, postTaxAnnual: andyNovatedLease.postTaxAnnual },
+      nadiele: { preTaxAnnual: nadieleNovatedLease.preTaxAnnual, postTaxAnnual: nadieleNovatedLease.postTaxAnnual },
     },
   };
 

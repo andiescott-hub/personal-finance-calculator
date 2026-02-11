@@ -41,6 +41,13 @@ export interface Mortgage {
   extraMonthlyPayment: number; // additional payment to reduce principal faster
 }
 
+export interface NovatedLease {
+  preTaxAnnual: number;  // annual pre-tax deduction (reduces taxable income)
+  postTaxAnnual: number; // annual post-tax deduction (reduces take-home pay)
+  leaseTermYears: number;
+  startYear: number;
+}
+
 export interface Child {
   id: string;
   name: string;
@@ -118,6 +125,12 @@ interface FinanceContextType {
   assets: Assets;
   setAssets: (assets: Assets) => void;
 
+  // Novated Leases
+  andyNovatedLease: NovatedLease;
+  setAndyNovatedLease: (lease: NovatedLease) => void;
+  nadieleNovatedLease: NovatedLease;
+  setNadieleNovatedLease: (lease: NovatedLease) => void;
+
   // Children & Education
   children: Child[];
   setChildren: (children: Child[]) => void;
@@ -192,6 +205,13 @@ const defaultAssets: Assets = {
   retirementSpendingRatio: 70, // 70% from super, 30% from portfolio
 };
 
+const defaultNovatedLease: NovatedLease = {
+  preTaxAnnual: 0,
+  postTaxAnnual: 0,
+  leaseTermYears: 0,
+  startYear: new Date().getFullYear(),
+};
+
 const defaultChildren: Child[] = [
   {
     id: '1',
@@ -244,6 +264,10 @@ export function FinanceProvider({ children: reactChildren }: { children: ReactNo
   // Assets
   const [assets, setAssets] = useState<Assets>(defaultAssets);
 
+  // Novated Leases
+  const [andyNovatedLease, setAndyNovatedLease] = useState<NovatedLease>(defaultNovatedLease);
+  const [nadieleNovatedLease, setNadieleNovatedLease] = useState<NovatedLease>(defaultNovatedLease);
+
   // Children & Education
   const [children, setChildren] = useState<Child[]>(defaultChildren);
   const [educationFees, setEducationFees] = useState<EducationFees>(defaultEducationFees);
@@ -279,6 +303,8 @@ export function FinanceProvider({ children: reactChildren }: { children: ReactNo
         retirementSpendingRatio: (a.retirementSpendingRatio as number) ?? defaultAssets.retirementSpendingRatio,
       });
     }
+    if (data.andyNovatedLease) setAndyNovatedLease({ ...defaultNovatedLease, ...(data.andyNovatedLease as NovatedLease) });
+    if (data.nadieleNovatedLease) setNadieleNovatedLease({ ...defaultNovatedLease, ...(data.nadieleNovatedLease as NovatedLease) });
     if (data.children) setChildren(data.children as Child[]);
     if (data.educationFees) setEducationFees(data.educationFees as EducationFees);
   }, []);
@@ -349,6 +375,8 @@ export function FinanceProvider({ children: reactChildren }: { children: ReactNo
       annualIncomeIncrease,
       annualInflationRate,
       assets,
+      andyNovatedLease,
+      nadieleNovatedLease,
       children,
       educationFees,
       lastModified: Date.now(),
@@ -386,6 +414,8 @@ export function FinanceProvider({ children: reactChildren }: { children: ReactNo
     annualIncomeIncrease,
     annualInflationRate,
     assets,
+    andyNovatedLease,
+    nadieleNovatedLease,
     children,
     educationFees,
   ]);
@@ -593,6 +623,10 @@ export function FinanceProvider({ children: reactChildren }: { children: ReactNo
     setAnnualInflationRate,
     assets,
     setAssets,
+    andyNovatedLease,
+    setAndyNovatedLease,
+    nadieleNovatedLease,
+    setNadieleNovatedLease,
     children,
     setChildren,
     educationFees,

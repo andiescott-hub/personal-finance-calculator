@@ -44,6 +44,8 @@ export default function ForecastPage() {
     annualInflationRate,
     setAnnualInflationRate,
     assets,
+    andyNovatedLease,
+    nadieleNovatedLease,
     children,
     educationFees,
   } = useFinance();
@@ -71,6 +73,8 @@ export default function ForecastPage() {
         nadielePortfolioContribution,
         financialYear,
         includeMedicareLevy: includeMedicare,
+        andyNovatedLease,
+        nadieleNovatedLease,
         children,
         educationFees,
       }),
@@ -91,6 +95,8 @@ export default function ForecastPage() {
       nadielePortfolioContribution,
       financialYear,
       includeMedicare,
+      andyNovatedLease,
+      nadieleNovatedLease,
       children,
       educationFees,
     ]

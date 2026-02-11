@@ -4,7 +4,7 @@ import { calculateExpenseSummary } from './expense-calculator';
 import { calculateMortgagePayment } from './mortgage-calculator';
 import type { IncomeInput } from './income-calculator';
 import type { ExpenseItem } from './expense-calculator';
-import type { Assets, Child, EducationFees } from './finance-context';
+import type { Assets, Child, EducationFees, NovatedLease } from './finance-context';
 
 export interface ForecastConfig {
   // Current state
@@ -32,6 +32,10 @@ export interface ForecastConfig {
   // Tax settings
   financialYear: string;
   includeMedicareLevy: boolean;
+
+  // Novated Leases
+  andyNovatedLease: NovatedLease;
+  nadieleNovatedLease: NovatedLease;
 
   // Children & Education
   children: Child[];
@@ -255,11 +259,31 @@ export function calculateForecast(config: ForecastConfig): ForecastResult {
 
     const incomeGrowthFactor = Math.pow(1 + config.annualIncomeIncrease / 100, yearCount);
 
-    const andyGrossIncome = andyIsRetired ? 0 : currentAndyAnnualIncome * incomeGrowthFactor;
-    const nadieleGrossIncome = nadieleIsRetired ? 0 : currentNadieleAnnualIncome * incomeGrowthFactor;
+    const andyGrossBeforeLease = andyIsRetired ? 0 : currentAndyAnnualIncome * incomeGrowthFactor;
+    const nadieleGrossBeforeLease = nadieleIsRetired ? 0 : currentNadieleAnnualIncome * incomeGrowthFactor;
+
+    // Novated lease: deduct pre-tax from gross (only during lease term)
+    const andyLeaseActive = !andyIsRetired &&
+      config.andyNovatedLease.preTaxAnnual > 0 &&
+      config.andyNovatedLease.leaseTermYears > 0 &&
+      forecastYear >= config.andyNovatedLease.startYear &&
+      forecastYear < config.andyNovatedLease.startYear + config.andyNovatedLease.leaseTermYears;
+    const nadieleLeaseActive = !nadieleIsRetired &&
+      config.nadieleNovatedLease.preTaxAnnual > 0 &&
+      config.nadieleNovatedLease.leaseTermYears > 0 &&
+      forecastYear >= config.nadieleNovatedLease.startYear &&
+      forecastYear < config.nadieleNovatedLease.startYear + config.nadieleNovatedLease.leaseTermYears;
+
+    const andyLeasePreTax = andyLeaseActive ? config.andyNovatedLease.preTaxAnnual : 0;
+    const nadieleLeasePreTax = nadieleLeaseActive ? config.nadieleNovatedLease.preTaxAnnual : 0;
+    const andyLeasePostTax = andyLeaseActive ? config.andyNovatedLease.postTaxAnnual : 0;
+    const nadieleLeasePostTax = nadieleLeaseActive ? config.nadieleNovatedLease.postTaxAnnual : 0;
+
+    const andyGrossIncome = andyGrossBeforeLease - andyLeasePreTax;
+    const nadieleGrossIncome = nadieleGrossBeforeLease - nadieleLeasePreTax;
     const combinedGrossIncome = andyGrossIncome + nadieleGrossIncome;
 
-    // Calculate tax
+    // Calculate tax (on lease-reduced gross)
     const andyTaxResult = calculateIncomeTax(
       andyGrossIncome,
       config.includeMedicareLevy
@@ -273,12 +297,11 @@ export function calculateForecast(config: ForecastConfig): ForecastResult {
     const nadieleTax = nadieleTaxResult.totalTax;
     const combinedTax = andyTax + nadieleTax;
 
-    // Calculate super
+    // Calculate super (on original gross — standard for novated leases)
     const sgRate = getSGRate(config.financialYear);
 
-    // Employer SG (on gross income)
-    const andyEmployerSG = andyIsRetired ? 0 : andyGrossIncome * sgRate;
-    const nadieleEmployerSG = nadieleIsRetired ? 0 : nadieleGrossIncome * sgRate;
+    const andyEmployerSG = andyIsRetired ? 0 : andyGrossBeforeLease * sgRate;
+    const nadieleEmployerSG = nadieleIsRetired ? 0 : nadieleGrossBeforeLease * sgRate;
 
     // Voluntary super
     const andyVoluntarySuper = andyIsRetired ? 0 : andyGrossIncome * (config.andyVoluntarySuper / 100);
@@ -352,10 +375,10 @@ export function calculateForecast(config: ForecastConfig): ForecastResult {
     const nadieleNonSpendable = nadieleIsRetired ? 0 :
       (config.nadieleIncome.allowances + config.nadieleIncome.preTotalAdjustments) * incomeGrowthFactor;
 
-    // Splurge = disposable income after ALL outgoings (expenses + education + portfolio contributions + non-spendable)
+    // Splurge = disposable income after ALL outgoings (expenses + education + portfolio contributions + non-spendable + post-tax lease)
     // Splurge is money that gets SPENT (vaporized) - not saved or invested
-    let andySplurge = andyAfterTax - andyVoluntarySuper - andyNonSpendable - andyExpenses - andyEducationExpenses - andyPortfolioContrib;
-    let nadieleSplurge = nadieleAfterTax - nadieleVoluntarySuper - nadieleNonSpendable - nadieleExpenses - nadieleEducationExpenses - nadielePortfolioContrib;
+    let andySplurge = andyAfterTax - andyVoluntarySuper - andyNonSpendable - andyExpenses - andyEducationExpenses - andyPortfolioContrib - andyLeasePostTax;
+    let nadieleSplurge = nadieleAfterTax - nadieleVoluntarySuper - nadieleNonSpendable - nadieleExpenses - nadieleEducationExpenses - nadielePortfolioContrib - nadieleLeasePostTax;
     let combinedSplurge = andySplurge + nadieleSplurge;
 
     // Track last working year's splurge (already includes inflation/income growth)
