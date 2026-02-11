@@ -63,8 +63,8 @@ export default function ExpensesPage() {
   const andySpendable = incomeData.andy.spendableIncome;
   const nadieleSpendable = incomeData.nadiele.spendableIncome;
   const totalSpendable = andySpendable + nadieleSpendable;
-  const andyPercent = totalSpendable > 0 ? Math.round(andySpendable / totalSpendable * 100) : 50;
-  const nadielePercent = 100 - andyPercent;
+  const andyPercent = totalSpendable > 0 ? parseFloat((andySpendable / totalSpendable * 100).toFixed(2)) : 50;
+  const nadielePercent = parseFloat((100 - andyPercent).toFixed(2));
 
   // Auto-update all expense proportions when income ratio changes
   useEffect(() => {
@@ -268,7 +268,7 @@ export default function ExpensesPage() {
       {/* Income-Based Ratio Banner */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
         <p className="text-sm font-semibold text-blue-900 mb-1">
-          Expense split based on spendable income: Andy {andyPercent}% / Nadiele {nadielePercent}%
+          Expense split based on spendable income: Andy {andyPercent.toFixed(2)}% / Nadiele {nadielePercent.toFixed(2)}%
         </p>
         <p className="text-xs text-blue-700">
           Andy spendable: {formatCurrency(andySpendable)}/yr | Nadiele spendable: {formatCurrency(nadieleSpendable)}/yr
