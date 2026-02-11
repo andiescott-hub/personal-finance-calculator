@@ -61,6 +61,10 @@ export interface CalculationConfig {
     andy: { preTaxAnnual: number; postTaxAnnual: number };
     nadiele: { preTaxAnnual: number; postTaxAnnual: number };
   };
+  portfolioContribution?: {
+    andy: number;
+    nadiele: number;
+  };
 }
 
 /**
@@ -74,6 +78,7 @@ export function calculatePersonIncome(
   spendableExclusion: number = 0,
   novatedLeasePreTax: number = 0,
   novatedLeasePostTax: number = 0,
+  portfolioContribution: number = 0,
 ): PersonIncomeData {
   // Calculate super first (needed to know voluntary super amount for salary sacrifice)
   const superCalc = calculateSuper({
@@ -100,9 +105,9 @@ export function calculatePersonIncome(
   // After-tax income
   const afterTaxIncome = tax.afterTaxIncome;
 
-  // Spendable income (after-tax minus exclusions minus post-tax lease)
+  // Spendable income (after-tax minus exclusions minus post-tax lease minus portfolio contributions)
   // Voluntary super is already excluded (came off pre-tax)
-  const spendableIncome = afterTaxIncome - spendableExclusion - novatedLeasePostTax;
+  const spendableIncome = afterTaxIncome - spendableExclusion - novatedLeasePostTax - portfolioContribution;
 
   return {
     baseSalary: input.baseSalary,
@@ -134,6 +139,7 @@ export function calculateHouseholdIncome(
     config.spendableExclusions.andy,
     config.novatedLease?.andy.preTaxAnnual || 0,
     config.novatedLease?.andy.postTaxAnnual || 0,
+    config.portfolioContribution?.andy || 0,
   );
 
   // Calculate Nadiele's income
@@ -145,6 +151,7 @@ export function calculateHouseholdIncome(
     config.spendableExclusions.nadiele,
     config.novatedLease?.nadiele.preTaxAnnual || 0,
     config.novatedLease?.nadiele.postTaxAnnual || 0,
+    config.portfolioContribution?.nadiele || 0,
   );
 
   // Calculate combined totals

@@ -25,9 +25,9 @@ export default function HomePage() {
     nadieleVoluntarySuper,
     setNadieleVoluntarySuper,
     andyNovatedLease,
-    setAndyNovatedLease,
     nadieleNovatedLease,
-    setNadieleNovatedLease,
+    andyPortfolioContribution,
+    nadielePortfolioContribution,
   } = useFinance();
 
   // Calculate everything
@@ -45,6 +45,10 @@ export default function HomePage() {
     novatedLease: {
       andy: { preTaxAnnual: andyNovatedLease.preTaxAnnual, postTaxAnnual: andyNovatedLease.postTaxAnnual },
       nadiele: { preTaxAnnual: nadieleNovatedLease.preTaxAnnual, postTaxAnnual: nadieleNovatedLease.postTaxAnnual },
+    },
+    portfolioContribution: {
+      andy: andyPortfolioContribution,
+      nadiele: nadielePortfolioContribution,
     },
   };
 
@@ -211,102 +215,6 @@ export default function HomePage() {
               </tr>
             </tbody>
           </table>
-        </div>
-      </div>
-
-      {/* Novated Leases */}
-      <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6 mb-6">
-        <h2 className="text-lg md:text-xl font-semibold mb-4">Novated Leases</h2>
-        <p className="text-sm text-gray-600 mb-4">
-          Pre-tax deductions reduce taxable income (and therefore tax). Post-tax deductions come out of net pay. Leave amounts at $0 if no lease.
-        </p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Andy's Lease */}
-          <div className="border rounded-lg p-4">
-            <h3 className="font-semibold mb-3">Andy</h3>
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium mb-1">Pre-Tax Annual</label>
-                <CurrencyInput
-                  value={andyNovatedLease.preTaxAnnual}
-                  onChange={(val) => setAndyNovatedLease({ ...andyNovatedLease, preTaxAnnual: val })}
-                  className="w-full border rounded p-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Post-Tax Annual</label>
-                <CurrencyInput
-                  value={andyNovatedLease.postTaxAnnual}
-                  onChange={(val) => setAndyNovatedLease({ ...andyNovatedLease, postTaxAnnual: val })}
-                  className="w-full border rounded p-2"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-medium mb-1">Start Year</label>
-                  <input
-                    type="number"
-                    value={andyNovatedLease.startYear}
-                    onChange={(e) => setAndyNovatedLease({ ...andyNovatedLease, startYear: Number(e.target.value) })}
-                    className="w-full border rounded p-2"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Term (years)</label>
-                  <input
-                    type="number"
-                    value={andyNovatedLease.leaseTermYears}
-                    onChange={(e) => setAndyNovatedLease({ ...andyNovatedLease, leaseTermYears: Number(e.target.value) })}
-                    className="w-full border rounded p-2"
-                    min={0}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* Nadiele's Lease */}
-          <div className="border rounded-lg p-4">
-            <h3 className="font-semibold mb-3">Nadiele</h3>
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium mb-1">Pre-Tax Annual</label>
-                <CurrencyInput
-                  value={nadieleNovatedLease.preTaxAnnual}
-                  onChange={(val) => setNadieleNovatedLease({ ...nadieleNovatedLease, preTaxAnnual: val })}
-                  className="w-full border rounded p-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Post-Tax Annual</label>
-                <CurrencyInput
-                  value={nadieleNovatedLease.postTaxAnnual}
-                  onChange={(val) => setNadieleNovatedLease({ ...nadieleNovatedLease, postTaxAnnual: val })}
-                  className="w-full border rounded p-2"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-medium mb-1">Start Year</label>
-                  <input
-                    type="number"
-                    value={nadieleNovatedLease.startYear}
-                    onChange={(e) => setNadieleNovatedLease({ ...nadieleNovatedLease, startYear: Number(e.target.value) })}
-                    className="w-full border rounded p-2"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Term (years)</label>
-                  <input
-                    type="number"
-                    value={nadieleNovatedLease.leaseTermYears}
-                    onChange={(e) => setNadieleNovatedLease({ ...nadieleNovatedLease, leaseTermYears: Number(e.target.value) })}
-                    className="w-full border rounded p-2"
-                    min={0}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -564,6 +472,7 @@ export default function HomePage() {
             { label: 'Less: Allowances', andy: formatCurrency(-andyIncome.allowances), nadiele: nadieleIncome.allowances > 0 ? formatCurrency(-nadieleIncome.allowances) : '—', combined: formatCurrency(-(andyIncome.allowances + nadieleIncome.allowances)) },
             { label: 'Less: Pre-Total Adj.', andy: andyIncome.preTotalAdjustments > 0 ? formatCurrency(-andyIncome.preTotalAdjustments) : '—', nadiele: nadieleIncome.preTotalAdjustments > 0 ? formatCurrency(-nadieleIncome.preTotalAdjustments) : '—', combined: (andyIncome.preTotalAdjustments + nadieleIncome.preTotalAdjustments) > 0 ? formatCurrency(-(andyIncome.preTotalAdjustments + nadieleIncome.preTotalAdjustments)) : '—' },
             ...((andyNovatedLease.postTaxAnnual > 0 || nadieleNovatedLease.postTaxAnnual > 0) ? [{ label: 'Less: Novated Lease (Post-Tax)', andy: andyNovatedLease.postTaxAnnual > 0 ? formatCurrency(-andyNovatedLease.postTaxAnnual) : '—', nadiele: nadieleNovatedLease.postTaxAnnual > 0 ? formatCurrency(-nadieleNovatedLease.postTaxAnnual) : '—', combined: formatCurrency(-(andyNovatedLease.postTaxAnnual + nadieleNovatedLease.postTaxAnnual)) }] : []),
+            ...((andyPortfolioContribution > 0 || nadielePortfolioContribution > 0) ? [{ label: 'Less: Portfolio Contributions', andy: andyPortfolioContribution > 0 ? formatCurrency(-andyPortfolioContribution) : '—', nadiele: nadielePortfolioContribution > 0 ? formatCurrency(-nadielePortfolioContribution) : '—', combined: formatCurrency(-(andyPortfolioContribution + nadielePortfolioContribution)) }] : []),
             { label: 'Spendable Income', andy: formatCurrency(data.andy.spendableIncome), nadiele: formatCurrency(data.nadiele.spendableIncome), combined: formatCurrency(data.combined.spendableIncome) },
           ].map((row) => (
             <div key={row.label} className="border rounded-lg p-3">
@@ -636,6 +545,20 @@ export default function HomePage() {
                 </td>
                 <td className="border p-3 text-right bg-cream text-red-600">
                   {formatCurrency(-(andyNovatedLease.postTaxAnnual + nadieleNovatedLease.postTaxAnnual))}
+                </td>
+              </tr>
+              )}
+              {(andyPortfolioContribution > 0 || nadielePortfolioContribution > 0) && (
+              <tr>
+                <td className="border p-3">Less: Portfolio Contributions</td>
+                <td className="border p-3 text-right text-red-600">
+                  {andyPortfolioContribution > 0 ? formatCurrency(-andyPortfolioContribution) : '—'}
+                </td>
+                <td className="border p-3 text-right text-red-600">
+                  {nadielePortfolioContribution > 0 ? formatCurrency(-nadielePortfolioContribution) : '—'}
+                </td>
+                <td className="border p-3 text-right bg-cream text-red-600">
+                  {formatCurrency(-(andyPortfolioContribution + nadielePortfolioContribution))}
                 </td>
               </tr>
               )}

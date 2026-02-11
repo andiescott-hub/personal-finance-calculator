@@ -28,7 +28,9 @@ export default function ExpensesPage() {
     andyVoluntarySuper,
     nadieleVoluntarySuper,
     andyNovatedLease,
+    setAndyNovatedLease,
     nadieleNovatedLease,
+    setNadieleNovatedLease,
   } = useFinance();
 
   // Calculate spendable income to derive expense ratio
@@ -47,7 +49,11 @@ export default function ExpensesPage() {
       andy: { preTaxAnnual: andyNovatedLease.preTaxAnnual, postTaxAnnual: andyNovatedLease.postTaxAnnual },
       nadiele: { preTaxAnnual: nadieleNovatedLease.preTaxAnnual, postTaxAnnual: nadieleNovatedLease.postTaxAnnual },
     },
-  }), [includeMedicare, financialYear, andyVoluntarySuper, nadieleVoluntarySuper, andyIncome, nadieleIncome, andyNovatedLease, nadieleNovatedLease]);
+    portfolioContribution: {
+      andy: andyPortfolioContribution,
+      nadiele: nadielePortfolioContribution,
+    },
+  }), [includeMedicare, financialYear, andyVoluntarySuper, nadieleVoluntarySuper, andyIncome, nadieleIncome, andyNovatedLease, nadieleNovatedLease, andyPortfolioContribution, nadielePortfolioContribution]);
 
   const incomeData = useMemo(
     () => calculateHouseholdIncome(andyIncome, nadieleIncome, incomeConfig),
@@ -607,6 +613,102 @@ export default function ExpensesPage() {
         <p className="mt-4 text-sm text-gray-600">
           Mortgage is included in forecast and deducted from net worth. Balance declines to $0 over loan term.
         </p>
+      </div>
+
+      {/* Novated Leases */}
+      <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6 mb-6">
+        <h2 className="text-lg md:text-xl font-semibold mb-4">Novated Leases</h2>
+        <p className="text-sm text-gray-600 mb-4">
+          Pre-tax deductions reduce taxable income (and therefore tax). Post-tax deductions come out of net pay. Leave amounts at $0 if no lease.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Andy's Lease */}
+          <div className="border rounded-lg p-4">
+            <h3 className="font-semibold mb-3">Andy</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium mb-1">Pre-Tax Annual</label>
+                <CurrencyInput
+                  value={andyNovatedLease.preTaxAnnual}
+                  onChange={(val) => setAndyNovatedLease({ ...andyNovatedLease, preTaxAnnual: val })}
+                  className="w-full border rounded p-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Post-Tax Annual</label>
+                <CurrencyInput
+                  value={andyNovatedLease.postTaxAnnual}
+                  onChange={(val) => setAndyNovatedLease({ ...andyNovatedLease, postTaxAnnual: val })}
+                  className="w-full border rounded p-2"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Start Year</label>
+                  <input
+                    type="number"
+                    value={andyNovatedLease.startYear}
+                    onChange={(e) => setAndyNovatedLease({ ...andyNovatedLease, startYear: Number(e.target.value) })}
+                    className="w-full border rounded p-2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Term (years)</label>
+                  <input
+                    type="number"
+                    value={andyNovatedLease.leaseTermYears}
+                    onChange={(e) => setAndyNovatedLease({ ...andyNovatedLease, leaseTermYears: Number(e.target.value) })}
+                    className="w-full border rounded p-2"
+                    min={0}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* Nadiele's Lease */}
+          <div className="border rounded-lg p-4">
+            <h3 className="font-semibold mb-3">Nadiele</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium mb-1">Pre-Tax Annual</label>
+                <CurrencyInput
+                  value={nadieleNovatedLease.preTaxAnnual}
+                  onChange={(val) => setNadieleNovatedLease({ ...nadieleNovatedLease, preTaxAnnual: val })}
+                  className="w-full border rounded p-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Post-Tax Annual</label>
+                <CurrencyInput
+                  value={nadieleNovatedLease.postTaxAnnual}
+                  onChange={(val) => setNadieleNovatedLease({ ...nadieleNovatedLease, postTaxAnnual: val })}
+                  className="w-full border rounded p-2"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Start Year</label>
+                  <input
+                    type="number"
+                    value={nadieleNovatedLease.startYear}
+                    onChange={(e) => setNadieleNovatedLease({ ...nadieleNovatedLease, startYear: Number(e.target.value) })}
+                    className="w-full border rounded p-2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Term (years)</label>
+                  <input
+                    type="number"
+                    value={nadieleNovatedLease.leaseTermYears}
+                    onChange={(e) => setNadieleNovatedLease({ ...nadieleNovatedLease, leaseTermYears: Number(e.target.value) })}
+                    className="w-full border rounded p-2"
+                    min={0}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Investment Contributions - at bottom */}

@@ -26,6 +26,8 @@ export default function CashFlowPage() {
     nadieleVoluntarySuper,
     andyNovatedLease,
     nadieleNovatedLease,
+    andyPortfolioContribution,
+    nadielePortfolioContribution,
     expenses,
   } = useFinance();
 
@@ -43,6 +45,10 @@ export default function CashFlowPage() {
     novatedLease: {
       andy: { preTaxAnnual: andyNovatedLease.preTaxAnnual, postTaxAnnual: andyNovatedLease.postTaxAnnual },
       nadiele: { preTaxAnnual: nadieleNovatedLease.preTaxAnnual, postTaxAnnual: nadieleNovatedLease.postTaxAnnual },
+    },
+    portfolioContribution: {
+      andy: andyPortfolioContribution,
+      nadiele: nadielePortfolioContribution,
     },
   };
 
