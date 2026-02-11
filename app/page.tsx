@@ -563,6 +563,7 @@ export default function HomePage() {
             { label: 'After-Tax Income', andy: formatCurrency(data.andy.afterTaxIncome), nadiele: formatCurrency(data.nadiele.afterTaxIncome), combined: formatCurrency(data.combined.afterTaxIncome) },
             { label: 'Less: Allowances', andy: formatCurrency(-andyIncome.allowances), nadiele: nadieleIncome.allowances > 0 ? formatCurrency(-nadieleIncome.allowances) : '—', combined: formatCurrency(-(andyIncome.allowances + nadieleIncome.allowances)) },
             { label: 'Less: Pre-Total Adj.', andy: andyIncome.preTotalAdjustments > 0 ? formatCurrency(-andyIncome.preTotalAdjustments) : '—', nadiele: nadieleIncome.preTotalAdjustments > 0 ? formatCurrency(-nadieleIncome.preTotalAdjustments) : '—', combined: (andyIncome.preTotalAdjustments + nadieleIncome.preTotalAdjustments) > 0 ? formatCurrency(-(andyIncome.preTotalAdjustments + nadieleIncome.preTotalAdjustments)) : '—' },
+            ...((andyNovatedLease.postTaxAnnual > 0 || nadieleNovatedLease.postTaxAnnual > 0) ? [{ label: 'Less: Novated Lease (Post-Tax)', andy: andyNovatedLease.postTaxAnnual > 0 ? formatCurrency(-andyNovatedLease.postTaxAnnual) : '—', nadiele: nadieleNovatedLease.postTaxAnnual > 0 ? formatCurrency(-nadieleNovatedLease.postTaxAnnual) : '—', combined: formatCurrency(-(andyNovatedLease.postTaxAnnual + nadieleNovatedLease.postTaxAnnual)) }] : []),
             { label: 'Spendable Income', andy: formatCurrency(data.andy.spendableIncome), nadiele: formatCurrency(data.nadiele.spendableIncome), combined: formatCurrency(data.combined.spendableIncome) },
           ].map((row) => (
             <div key={row.label} className="border rounded-lg p-3">
@@ -624,6 +625,20 @@ export default function HomePage() {
                     : '—'}
                 </td>
               </tr>
+              {(andyNovatedLease.postTaxAnnual > 0 || nadieleNovatedLease.postTaxAnnual > 0) && (
+              <tr>
+                <td className="border p-3">Less: Novated Lease (Post-Tax)</td>
+                <td className="border p-3 text-right text-red-600">
+                  {andyNovatedLease.postTaxAnnual > 0 ? formatCurrency(-andyNovatedLease.postTaxAnnual) : '—'}
+                </td>
+                <td className="border p-3 text-right text-red-600">
+                  {nadieleNovatedLease.postTaxAnnual > 0 ? formatCurrency(-nadieleNovatedLease.postTaxAnnual) : '—'}
+                </td>
+                <td className="border p-3 text-right bg-cream text-red-600">
+                  {formatCurrency(-(andyNovatedLease.postTaxAnnual + nadieleNovatedLease.postTaxAnnual))}
+                </td>
+              </tr>
+              )}
               <tr className="bg-yellow-50">
                 <td className="border p-3 font-bold">Spendable Income</td>
                 <td className="border p-3 text-right font-bold">
