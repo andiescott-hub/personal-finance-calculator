@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useFinance } from '@/lib/finance-context';
-import { calculateMortgagePayment } from '@/lib/mortgage-calculator';
 import type { Car, Asset, PortfolioItem } from '@/lib/finance-context';
 import { CurrencyInput, PercentInput } from '@/components/formatted-input';
 
@@ -243,14 +242,6 @@ export default function AssetsPage() {
   const totalSuperBalance = (assets.andySuperBalance || 0) + (assets.nadieleSuperBalance || 0);
   const totalAssets = totalSuperBalance + (assets.portfolioValue || 0) + totalCarValue + totalOtherAssets;
   const totalNetWorth = totalAssets - (assets.mortgage?.currentBalance ?? assets.mortgage?.loanAmount ?? 0);
-
-  // Calculate mortgage payment
-  const monthlyMortgagePayment = assets.mortgage ? calculateMortgagePayment(
-    assets.mortgage.loanAmount,
-    assets.mortgage.interestRate,
-    assets.mortgage.loanTermYears,
-    assets.mortgage.paymentsPerYear
-  ) : 0;
 
   return (
     <div className="container mx-auto px-2 md:px-6 max-w-7xl">
@@ -640,154 +631,6 @@ export default function AssetsPage() {
         </p>
       </div>
 
-      {/* Mortgage */}
-      <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6 mb-6">
-        <h2 className="text-lg md:text-xl font-semibold mb-4">Mortgage</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">Loan Amount</label>
-            <CurrencyInput
-              value={assets.mortgage?.loanAmount || 0}
-              onChange={(val) =>
-                setAssets({
-                  ...assets,
-                  mortgage: { ...(assets.mortgage || {}), loanAmount: val },
-                })
-              }
-              className="border rounded p-2 w-full md:w-32"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">Current Balance</label>
-            <CurrencyInput
-              value={assets.mortgage?.currentBalance ?? assets.mortgage?.loanAmount ?? 0}
-              onChange={(val) =>
-                setAssets({
-                  ...assets,
-                  mortgage: { ...(assets.mortgage || {}), currentBalance: val },
-                })
-              }
-              className="border rounded p-2 w-full md:w-32"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">Interest Rate</label>
-            <PercentInput
-              value={assets.mortgage?.interestRate || 0}
-              onChange={(val) =>
-                setAssets({
-                  ...assets,
-                  mortgage: { ...(assets.mortgage || {}), interestRate: val },
-                })
-              }
-              className="border rounded p-2 w-full md:w-32"
-              step={0.01}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">Loan Term (years)</label>
-            <input
-              type="number"
-              value={assets.mortgage?.loanTermYears || 0}
-              onChange={(e) =>
-                setAssets({
-                  ...assets,
-                  mortgage: { ...(assets.mortgage || {}), loanTermYears: Number(e.target.value) },
-                })
-              }
-              className="border rounded p-2 w-full md:w-32"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">Payment Frequency</label>
-            <select
-              value={assets.mortgage?.paymentsPerYear || 12}
-              onChange={(e) =>
-                setAssets({
-                  ...assets,
-                  mortgage: { ...(assets.mortgage || {}), paymentsPerYear: Number(e.target.value) },
-                })
-              }
-              className="border rounded p-2 w-full md:w-32"
-            >
-              <option value={12}>Monthly</option>
-              <option value={26}>Fortnightly</option>
-              <option value={52}>Weekly</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">Start Year</label>
-            <input
-              type="number"
-              value={assets.mortgage?.startYear || new Date().getFullYear()}
-              onChange={(e) =>
-                setAssets({
-                  ...assets,
-                  mortgage: { ...(assets.mortgage || {}), startYear: Number(e.target.value) },
-                })
-              }
-              className="border rounded p-2 w-full md:w-32"
-            />
-          </div>
-        </div>
-
-        {/* Extra Payment Row */}
-        <div className="mt-4 p-4 bg-green-50 border border-green-300 rounded">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-2 text-green-800">
-                💰 Extra Monthly Payment (Optional)
-              </label>
-              <CurrencyInput
-                value={assets.mortgage?.extraMonthlyPayment || 0}
-                onChange={(val) =>
-                  setAssets({
-                    ...assets,
-                    mortgage: { ...(assets.mortgage || {}), extraMonthlyPayment: val },
-                  })
-                }
-                className="w-full border-2 border-green-400 rounded p-2"
-                placeholder="0"
-              />
-            </div>
-            <div className="flex items-end">
-              <p className="text-sm text-gray-700">
-                Extra payments reduce your mortgage faster and save on interest.
-                This will appear as a separate expense and reduce the balance in the forecast.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-red-50 rounded mt-4">
-          <div>
-            <p className="text-sm text-gray-600">Monthly Payment</p>
-            <p className="text-xl font-bold text-red-600">
-              {formatCurrency(
-                (assets.mortgage?.paymentsPerYear || 12) === 12
-                  ? monthlyMortgagePayment
-                  : monthlyMortgagePayment * (assets.mortgage?.paymentsPerYear || 12) / 12
-              )}
-            </p>
-          </div>
-          <div>
-            <p className="text-sm text-gray-600">Annual Payment</p>
-            <p className="text-xl font-bold text-red-600">
-              {formatCurrency(monthlyMortgagePayment * (assets.mortgage?.paymentsPerYear || 12))}
-            </p>
-          </div>
-          <div>
-            <p className="text-sm text-gray-600">Payoff Year</p>
-            <p className="text-xl font-bold text-red-600">
-              {(assets.mortgage?.startYear || new Date().getFullYear()) + (assets.mortgage?.loanTermYears || 30)}
-            </p>
-          </div>
-        </div>
-        <p className="mt-4 text-sm text-gray-600">
-          Mortgage is included in forecast and deducted from net worth. Balance declines to $0 over loan term.
-        </p>
-      </div>
-
       {/* Other Assets */}
       <div className="bg-white border border-gray-custom rounded-lg shadow p-4 md:p-6 mb-6">
         <h2 className="text-lg md:text-xl font-semibold mb-4">Other Assets</h2>
@@ -1097,9 +940,6 @@ export default function AssetsPage() {
           </li>
           <li>
             <strong>Retirement Strategy:</strong> When expenses exceed income, {assets.retirementSpendingRatio || 70}% is drawn from super and {100 - (assets.retirementSpendingRatio || 70)}% from portfolio.
-          </li>
-          <li>
-            <strong>Mortgage:</strong> Principal and interest are automatically included in the forecast. Balance declines to $0 by {(assets.mortgage?.startYear || new Date().getFullYear()) + (assets.mortgage?.loanTermYears || 30)}.
           </li>
           <li>
             <strong>Other Assets:</strong> Can appreciate (positive growth rate) or depreciate (negative growth rate). Examples: property (+5%), collectibles (+3%), equipment (-10%).
