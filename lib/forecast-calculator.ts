@@ -279,11 +279,23 @@ export function calculateForecast(config: ForecastConfig): ForecastResult {
     const andyLeasePostTax = andyLeaseActive ? config.andyNovatedLease.postTaxAnnual : 0;
     const nadieleLeasePostTax = nadieleLeaseActive ? config.nadieleNovatedLease.postTaxAnnual : 0;
 
-    const andyGrossIncome = andyGrossBeforeLease - andyLeasePreTax;
-    const nadieleGrossIncome = nadieleGrossBeforeLease - nadieleLeasePreTax;
+    // Calculate super first (need voluntary amount for salary sacrifice deduction)
+    const sgRate = getSGRate(config.financialYear);
+
+    // Employer SG on original gross (before any deductions)
+    const andyEmployerSG = andyIsRetired ? 0 : andyGrossBeforeLease * sgRate;
+    const nadieleEmployerSG = nadieleIsRetired ? 0 : nadieleGrossBeforeLease * sgRate;
+
+    // Voluntary super (salary sacrifice) calculated on original gross before deductions
+    const andyVoluntarySuper = andyIsRetired ? 0 : andyGrossBeforeLease * (config.andyVoluntarySuper / 100);
+    const nadieleVoluntarySuper = nadieleIsRetired ? 0 : nadieleGrossBeforeLease * (config.nadieleVoluntarySuper / 100);
+
+    // Taxable income: original gross minus salary sacrifice super and novated lease pre-tax
+    const andyGrossIncome = andyGrossBeforeLease - andyVoluntarySuper - andyLeasePreTax;
+    const nadieleGrossIncome = nadieleGrossBeforeLease - nadieleVoluntarySuper - nadieleLeasePreTax;
     const combinedGrossIncome = andyGrossIncome + nadieleGrossIncome;
 
-    // Calculate tax (on lease-reduced gross)
+    // Calculate tax (on reduced taxable income)
     const andyTaxResult = calculateIncomeTax(
       andyGrossIncome,
       config.includeMedicareLevy
@@ -296,16 +308,6 @@ export function calculateForecast(config: ForecastConfig): ForecastResult {
     const andyTax = andyTaxResult.totalTax;
     const nadieleTax = nadieleTaxResult.totalTax;
     const combinedTax = andyTax + nadieleTax;
-
-    // Calculate super (on original gross — standard for novated leases)
-    const sgRate = getSGRate(config.financialYear);
-
-    const andyEmployerSG = andyIsRetired ? 0 : andyGrossBeforeLease * sgRate;
-    const nadieleEmployerSG = nadieleIsRetired ? 0 : nadieleGrossBeforeLease * sgRate;
-
-    // Voluntary super
-    const andyVoluntarySuper = andyIsRetired ? 0 : andyGrossIncome * (config.andyVoluntarySuper / 100);
-    const nadieleVoluntarySuper = nadieleIsRetired ? 0 : nadieleGrossIncome * (config.nadieleVoluntarySuper / 100);
 
     // Total super contributions
     const andySuper = andyEmployerSG + andyVoluntarySuper;
@@ -377,8 +379,9 @@ export function calculateForecast(config: ForecastConfig): ForecastResult {
 
     // Splurge = disposable income after ALL outgoings (expenses + education + portfolio contributions + non-spendable + post-tax lease)
     // Splurge is money that gets SPENT (vaporized) - not saved or invested
-    let andySplurge = andyAfterTax - andyVoluntarySuper - andyNonSpendable - andyExpenses - andyEducationExpenses - andyPortfolioContrib - andyLeasePostTax;
-    let nadieleSplurge = nadieleAfterTax - nadieleVoluntarySuper - nadieleNonSpendable - nadieleExpenses - nadieleEducationExpenses - nadielePortfolioContrib - nadieleLeasePostTax;
+    // Voluntary super already deducted pre-tax, so not subtracted here
+    let andySplurge = andyAfterTax - andyNonSpendable - andyExpenses - andyEducationExpenses - andyPortfolioContrib - andyLeasePostTax;
+    let nadieleSplurge = nadieleAfterTax - nadieleNonSpendable - nadieleExpenses - nadieleEducationExpenses - nadielePortfolioContrib - nadieleLeasePostTax;
     let combinedSplurge = andySplurge + nadieleSplurge;
 
     // Track last working year's splurge (already includes inflation/income growth)

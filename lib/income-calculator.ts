@@ -75,18 +75,7 @@ export function calculatePersonIncome(
   novatedLeasePreTax: number = 0,
   novatedLeasePostTax: number = 0,
 ): PersonIncomeData {
-  // Calculate gross income (novated lease pre-tax reduces taxable income)
-  const grossIncome =
-    input.baseSalary +
-    input.variableIncome +
-    input.allowances +
-    input.preTotalAdjustments -
-    novatedLeasePreTax;
-
-  // Calculate tax on reduced taxable income
-  const tax = calculateIncomeTax(grossIncome, includeMedicareLevy);
-
-  // Calculate super
+  // Calculate super first (needed to know voluntary super amount for salary sacrifice)
   const superCalc = calculateSuper({
     baseSalary: input.baseSalary,
     bonus: input.variableIncome,
@@ -95,10 +84,24 @@ export function calculatePersonIncome(
     financialYear,
   });
 
+  // Gross income before pre-tax deductions (for display/reference)
+  const grossBeforeDeductions =
+    input.baseSalary +
+    input.variableIncome +
+    input.allowances +
+    input.preTotalAdjustments;
+
+  // Taxable income: gross minus salary sacrifice super and novated lease pre-tax
+  const grossIncome = grossBeforeDeductions - superCalc.voluntarySuper - novatedLeasePreTax;
+
+  // Calculate tax on reduced taxable income
+  const tax = calculateIncomeTax(grossIncome, includeMedicareLevy);
+
   // After-tax income
   const afterTaxIncome = tax.afterTaxIncome;
 
   // Spendable income (after-tax minus exclusions minus post-tax lease)
+  // Voluntary super is already excluded (came off pre-tax)
   const spendableIncome = afterTaxIncome - spendableExclusion - novatedLeasePostTax;
 
   return {
