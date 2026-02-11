@@ -75,6 +75,8 @@ export default function SettingsPage() {
       annualIncomeIncrease: financeData.annualIncomeIncrease,
       annualInflationRate: financeData.annualInflationRate,
       assets: financeData.assets,
+      andyNovatedLease: financeData.andyNovatedLease,
+      nadieleNovatedLease: financeData.nadieleNovatedLease,
       children: financeData.children,
       educationFees: financeData.educationFees,
       exportDate: new Date().toISOString(),
