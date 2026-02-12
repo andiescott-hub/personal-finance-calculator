@@ -5,7 +5,7 @@ import { useFinance } from '@/lib/finance-context';
 export default function SettingsPage() {
   const financeData = useFinance();
 
-  const handleRestoreDefaults = () => {
+  const handleRestoreDefaults = async () => {
     try {
       const backupData = {
         "financialYear": "2025-26",
@@ -46,6 +46,17 @@ export default function SettingsPage() {
       console.log('Restoring data...', backupData);
       localStorage.setItem('financeAppData', JSON.stringify(backupData));
       console.log('Data written to localStorage');
+
+      // Also push to cloud so it doesn't get overwritten on reload
+      try {
+        await fetch('/api/data', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(backupData),
+        });
+      } catch {
+        // Cloud push failed, localStorage will still work
+      }
 
       alert('✓ Data restored successfully! Page will reload now.');
       setTimeout(() => {
@@ -99,12 +110,26 @@ export default function SettingsPage() {
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       try {
         const data = JSON.parse(e.target?.result as string);
 
-        // Write directly to localStorage (more reliable than setState)
+        // Add lastModified timestamp
+        data.lastModified = Date.now();
+
+        // Write to localStorage
         localStorage.setItem('financeAppData', JSON.stringify(data));
+
+        // Also push to cloud so it doesn't get overwritten on reload
+        try {
+          await fetch('/api/data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+          });
+        } catch {
+          // Cloud push failed, localStorage will still work as fallback
+        }
 
         alert('Data imported successfully! Reloading page...');
 
