@@ -58,17 +58,26 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const hasLoadedRef = useRef(false);
 
   // Load threads from localStorage on mount and resume the most recent one
   useEffect(() => {
     const stored = loadThreads();
     const sorted = [...stored].sort((a, b) => b.updatedAt - a.updatedAt);
+    hasLoadedRef.current = true;
     setThreads(sorted);
     if (sorted.length > 0) {
       setActiveThreadId(sorted[0].id);
       setMessages(sorted[0].messages);
     }
   }, []);
+
+  // Persist threads to localStorage whenever they change (after initial load)
+  useEffect(() => {
+    if (hasLoadedRef.current) {
+      saveThreads(threads);
+    }
+  }, [threads]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -109,7 +118,6 @@ export default function ChatPage() {
           updated = all.slice(0, MAX_THREADS);
         }
 
-        saveThreads(updated);
         return updated;
       });
     },
