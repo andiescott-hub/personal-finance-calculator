@@ -105,6 +105,9 @@ export function buildFinanceSystemPrompt(
     `Portfolio growth: ${pct(config.assets.portfolioGrowthRate)} p.a.`,
     `Voluntary super: Andy ${pct(config.andyVoluntarySuper)}, Nadiele ${pct(config.nadieleVoluntarySuper)}`,
     `Portfolio contributions: Andy ${fmt(config.andyPortfolioContribution)}/yr, Nadiele ${fmt(config.nadielePortfolioContribution)}/yr`,
+    config.splurgeAutoInvestThreshold > 0
+      ? `Splurge Auto-Invest Threshold: ${pct(config.splurgeAutoInvestThreshold)} of after-tax income — discretionary spending above this % is automatically invested into portfolio`
+      : `Splurge Auto-Invest Threshold: off (0%)`,
   ];
 
   // --- Forecast summary milestones ---
@@ -126,10 +129,10 @@ export function buildFinanceSystemPrompt(
   milestones.push(`Lifetime totals: Income earned ${fmt(forecast.summary.totalIncomeEarned)}, Tax paid ${fmt(forecast.summary.totalTaxPaid)}, Super contributed ${fmt(forecast.summary.totalSuperContributed)}, Expenses ${fmt(forecast.summary.totalExpenses)}`);
 
   // --- Year-by-year projection table ---
-  const tableHeader = 'Year | Andy Age | Nad Age | Gross Income | Tax | After-Tax | Expenses | Education | Splurge | Super Bal | Portfolio | Mortgage | Net Worth';
+  const tableHeader = 'Year | Andy Age | Nad Age | Gross Income | Tax | After-Tax | Expenses | Education | Splurge | Auto-Invested | Super Bal | Portfolio | Mortgage | Net Worth';
   const tableDivider = '-'.repeat(tableHeader.length);
   const tableRows = p.map(y =>
-    `${y.calendarYear} | ${y.andyAge} | ${y.nadieleAge} | ${fmt(y.combinedGrossIncome)} | ${fmt(y.combinedTax)} | ${fmt(y.combinedAfterTax)} | ${fmt(y.combinedExpenses)} | ${fmt(y.educationExpenses)} | ${fmt(y.combinedSplurge)} | ${fmt(y.totalSuperBalance)} | ${fmt(y.portfolioValue)} | ${fmt(y.mortgageBalance)} | ${fmt(y.totalNetWorth)}`
+    `${y.calendarYear} | ${y.andyAge} | ${y.nadieleAge} | ${fmt(y.combinedGrossIncome)} | ${fmt(y.combinedTax)} | ${fmt(y.combinedAfterTax)} | ${fmt(y.combinedExpenses)} | ${fmt(y.educationExpenses)} | ${fmt(y.combinedSplurge)} | ${fmt(y.splurgeAutoInvested)} | ${fmt(y.totalSuperBalance)} | ${fmt(y.portfolioValue)} | ${fmt(y.mortgageBalance)} | ${fmt(y.totalNetWorth)}`
   );
 
   return `You are a helpful financial assistant for an Australian household. You have access to their complete financial data and year-by-year projections below. Answer questions accurately using the data provided. Use Australian dollar formatting ($X,XXX). Be concise but thorough. When referencing specific years or ages, cite the exact numbers from the data. If a question requires extrapolation beyond the data, say so.

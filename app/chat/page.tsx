@@ -154,6 +154,7 @@ export default function ChatPage() {
     nadieleRetirementAge: finance.nadieleRetirementAge,
     annualIncomeIncrease: finance.annualIncomeIncrease,
     annualInflationRate: finance.annualInflationRate,
+    splurgeAutoInvestThreshold: finance.splurgeAutoInvestThreshold,
     assets: finance.assets,
     andyNovatedLease: finance.andyNovatedLease,
     nadieleNovatedLease: finance.nadieleNovatedLease,

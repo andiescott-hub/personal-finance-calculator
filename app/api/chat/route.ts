@@ -32,6 +32,7 @@ interface ChatRequest {
     nadieleRetirementAge: number;
     annualIncomeIncrease: number;
     annualInflationRate: number;
+    splurgeAutoInvestThreshold: number;
     assets: ForecastConfig['assets'];
     andyNovatedLease: ForecastConfig['andyNovatedLease'];
     nadieleNovatedLease: ForecastConfig['nadieleNovatedLease'];
@@ -63,6 +64,7 @@ export async function POST(request: Request) {
       nadieleRetirementAge: financialData.nadieleRetirementAge,
       annualIncomeIncrease: financialData.annualIncomeIncrease,
       annualInflationRate: financialData.annualInflationRate,
+      splurgeAutoInvestThreshold: financialData.splurgeAutoInvestThreshold ?? 0,
       andyVoluntarySuper: financialData.andyVoluntarySuper,
       nadieleVoluntarySuper: financialData.nadieleVoluntarySuper,
       andyPortfolioContribution: financialData.andyPortfolioContribution,

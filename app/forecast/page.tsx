@@ -43,6 +43,8 @@ export default function ForecastPage() {
     setAnnualIncomeIncrease,
     annualInflationRate,
     setAnnualInflationRate,
+    splurgeAutoInvestThreshold,
+    setSplurgeAutoInvestThreshold,
     assets,
     andyNovatedLease,
     nadieleNovatedLease,
@@ -67,6 +69,7 @@ export default function ForecastPage() {
         nadieleRetirementAge,
         annualIncomeIncrease,
         annualInflationRate,
+        splurgeAutoInvestThreshold,
         andyVoluntarySuper,
         nadieleVoluntarySuper,
         andyPortfolioContribution,
@@ -89,6 +92,7 @@ export default function ForecastPage() {
       nadieleRetirementAge,
       annualIncomeIncrease,
       annualInflationRate,
+      splurgeAutoInvestThreshold,
       andyVoluntarySuper,
       nadieleVoluntarySuper,
       andyPortfolioContribution,
@@ -211,7 +215,7 @@ export default function ForecastPage() {
         </div>
 
         {/* Growth Rates */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium mb-2">Annual Income Increase</label>
             <PercentInput
@@ -229,6 +233,16 @@ export default function ForecastPage() {
               className="border rounded p-2 w-20"
               step={0.1}
             />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">Splurge Auto-Invest Threshold</label>
+            <PercentInput
+              value={splurgeAutoInvestThreshold}
+              onChange={setSplurgeAutoInvestThreshold}
+              className="border rounded p-2 w-20"
+              step={0.5}
+            />
+            <p className="text-xs text-gray-500 mt-1">Discretionary above this % of spendable income is auto-invested. 0% = off.</p>
           </div>
         </div>
       </div>
