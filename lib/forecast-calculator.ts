@@ -29,6 +29,9 @@ export interface ForecastConfig {
   andyPortfolioContribution: number; // annual dollar amount
   nadielePortfolioContribution: number; // annual dollar amount
 
+  // Splurge Auto-Invest
+  splurgeAutoInvestThreshold: number; // percentage of after-tax income; 0 = off
+
   // Tax settings
   financialYear: string;
   includeMedicareLevy: boolean;
@@ -88,6 +91,7 @@ export interface YearProjection {
   andySplurge: number;
   nadieleSplurge: number;
   combinedSplurge: number;
+  splurgeAutoInvested: number; // Amount auto-invested from excess splurge via threshold
 
   // Cumulative
   cumulativeSavings: number;
@@ -384,6 +388,21 @@ export function calculateForecast(config: ForecastConfig): ForecastResult {
     let nadieleSplurge = nadieleAfterTax - nadieleNonSpendable - nadieleExpenses - nadieleEducationExpenses - nadielePortfolioContrib - nadieleLeasePostTax;
     let combinedSplurge = andySplurge + nadieleSplurge;
 
+    // Splurge Auto-Invest: if threshold > 0 and in working years, auto-invest excess splurge
+    let splurgeAutoInvested = 0;
+    const autoInvestThreshold = config.splurgeAutoInvestThreshold || 0;
+    if (autoInvestThreshold > 0 && !bothRetired && combinedSplurge > 0) {
+      const thresholdAmount = combinedAfterTax * (autoInvestThreshold / 100);
+      if (combinedSplurge > thresholdAmount) {
+        splurgeAutoInvested = combinedSplurge - thresholdAmount;
+        // Scale down individual splurge proportionally
+        const scale = thresholdAmount / combinedSplurge;
+        andySplurge = andySplurge * scale;
+        nadieleSplurge = nadieleSplurge * scale;
+        combinedSplurge = thresholdAmount;
+      }
+    }
+
     // Track last working year's splurge (already includes inflation/income growth)
     if (!bothRetired && combinedSplurge > 0) {
       lastWorkingSplurge = combinedSplurge;
@@ -415,6 +434,7 @@ export function calculateForecast(config: ForecastConfig): ForecastResult {
     // Portfolio: Apply growth rate, then add working-year contributions
     portfolioValue = portfolioValue * (1 + config.assets.portfolioGrowthRate / 100);
     portfolioValue += combinedPortfolioContrib; // Only non-zero during working years
+    portfolioValue += splurgeAutoInvested; // Auto-invested from excess splurge
 
     // Handle retirement spending: draw from super/portfolio to cover shortfall
     let superDrawdown = 0;
@@ -501,6 +521,7 @@ export function calculateForecast(config: ForecastConfig): ForecastResult {
       andySplurge,
       nadieleSplurge,
       combinedSplurge,
+      splurgeAutoInvested,
       cumulativeSavings,
       andySuperBalance,
       nadieleSuperBalance,

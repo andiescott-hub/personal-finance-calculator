@@ -120,6 +120,8 @@ interface FinanceContextType {
   setAnnualIncomeIncrease: (rate: number) => void;
   annualInflationRate: number;
   setAnnualInflationRate: (rate: number) => void;
+  splurgeAutoInvestThreshold: number;
+  setSplurgeAutoInvestThreshold: (threshold: number) => void;
 
   // Assets
   assets: Assets;
@@ -260,6 +262,7 @@ export function FinanceProvider({ children: reactChildren }: { children: ReactNo
   const [nadieleRetirementAge, setNadieleRetirementAge] = useState(67);
   const [annualIncomeIncrease, setAnnualIncomeIncrease] = useState(3);
   const [annualInflationRate, setAnnualInflationRate] = useState(2.5);
+  const [splurgeAutoInvestThreshold, setSplurgeAutoInvestThreshold] = useState(0);
 
   // Assets
   const [assets, setAssets] = useState<Assets>(defaultAssets);
@@ -289,6 +292,7 @@ export function FinanceProvider({ children: reactChildren }: { children: ReactNo
     if (data.nadieleRetirementAge !== undefined) setNadieleRetirementAge(data.nadieleRetirementAge as number);
     if (data.annualIncomeIncrease !== undefined) setAnnualIncomeIncrease(data.annualIncomeIncrease as number);
     if (data.annualInflationRate !== undefined) setAnnualInflationRate(data.annualInflationRate as number);
+    if (data.splurgeAutoInvestThreshold !== undefined) setSplurgeAutoInvestThreshold(data.splurgeAutoInvestThreshold as number);
     if (data.assets) {
       const a = data.assets as Record<string, unknown>;
       setAssets({
@@ -374,6 +378,7 @@ export function FinanceProvider({ children: reactChildren }: { children: ReactNo
       nadieleRetirementAge,
       annualIncomeIncrease,
       annualInflationRate,
+      splurgeAutoInvestThreshold,
       assets,
       andyNovatedLease,
       nadieleNovatedLease,
@@ -413,6 +418,7 @@ export function FinanceProvider({ children: reactChildren }: { children: ReactNo
     nadieleRetirementAge,
     annualIncomeIncrease,
     annualInflationRate,
+    splurgeAutoInvestThreshold,
     assets,
     andyNovatedLease,
     nadieleNovatedLease,
@@ -621,6 +627,8 @@ export function FinanceProvider({ children: reactChildren }: { children: ReactNo
     setAnnualIncomeIncrease,
     annualInflationRate,
     setAnnualInflationRate,
+    splurgeAutoInvestThreshold,
+    setSplurgeAutoInvestThreshold,
     assets,
     setAssets,
     andyNovatedLease,
